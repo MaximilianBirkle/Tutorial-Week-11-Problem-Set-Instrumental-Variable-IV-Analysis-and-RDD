@@ -57,21 +57,91 @@ cat("Variables:", ncol(ajr_data), "\n")
 
 # Problem 1: Instrumental Variable Analysis
 
+## Q1. Writing and Estimating the IV Model (10 pts)
+
+1. **Write down the two-equation IV system** (first stage and second stage).
+    
+    Define explicitly:
+    
+    - $Y_i$: outcome
+    - $T_i$: endogenous regressor
+    - $Z_i$: instrument
+    - $X_i$: controls
+
+2. Estimate the following:
+    - **First stage:**
+        
+        $$T_i = \alpha_1 + \beta_1 Z_i + \mathbf{X}_i' \gamma_1 + \varepsilon_{1i}$$
+        
+    - **Reduced form:**
+        
+        $$Y_i = \alpha_2 + \delta_1 Z_i + \mathbf{X}_i' \gamma_2 + \varepsilon_{2i}$$
+        
+    - **2SLS:**
+        
+        $$Y_i = \alpha_3 + \beta_2 T_i + \mathbf{X}_i' \gamma_3 + \varepsilon_{3i}$$
+        
+3. Report and interpret:
+    - The reduced-form coefficient on $Z_i$.
+    - The first-stage coefficient on $Z_i$.
+    - The **first-stage F-statistic**. Is it above the rule-of-thumb threshold of $\approx$ 10?
+    - The 2SLS estimate of the effect of $T_i$ on $Y_i$. Is it statistically significant?
+
+## Q2. Randomization and Resampling (10 pts)
+
+### Q2(a). Permutation Test
+
+1. **State the null hypothesis** being tested.
+
+2. Conduct a **permutation test** for the IV coefficient:
+    - Shuffle the endogenous variable (or fitted values) while holding other variables fixed.
+    - Re-estimate the IV model for each permutation.
+    - Construct the empirical null distribution.
+    - Report the **permutation p-value**.
+
+3. Compare this p-value to the **normal-approximation p-value** from your 2SLS output.
+    
+    Discuss any differences and what they imply for small-sample IV inference.
+
+### Q2(b). Bootstrap Confidence Intervals
+
+Using bootstrap resampling of observations:
+
+1. Generate bootstrap 2SLS estimates of the coefficient on $T_i$.
+
+2. Construct three 95% confidence intervals:
+    - **Efron percentile**
+    - **Bias-corrected (BC—google this one.)**
+
+3. Compare the three CIs:
+    - Do they include zero?
+    - Are they wider or narrower?
+    - What does this imply about the sampling distribution?
+
+### Q2(c). Conceptual: Permutation vs Bootstrap
+
+Explain—precisely—what the **permutation test** and the **bootstrap** each measure.
+
+What is held fixed? What is resampled?
+
+Why do they answer conceptually different questions?
+
 ## Q3. Instrument Validity and Timing (10 pts)
 
-### 3.1 Causal Priority in AJR's Theory
+### Q3.1 Causal Priority in AJR's Theory
 
 **Why settler mortality must be causally prior to institutions:**
 
 [Write your answer here]
 
 Key points to address:
-- The logic of instrumental variables requires that Z → T → Y (no reverse causation)
-- In AJR's theory, high settler mortality → extractive institutions → lower growth
+
+- The logic of instrumental variables requires that $Z \rightarrow T \rightarrow Y$ (no reverse causation)
+- In AJR's theory, high settler mortality $\rightarrow$ extractive institutions $\rightarrow$ lower growth
 - If institutions could affect mortality rates retroactively, the IV assumption fails
 - The exclusion restriction requires mortality affects GDP ONLY through institutions
 
-### 3.2 Timing Problems
+### Q3.2 Timing Problems
 
 **Issues with timing of settler mortality measurements:**
 
@@ -80,18 +150,21 @@ Key points to address:
 Address each IV assumption:
 
 **Relevance (First-stage):**
+
 - Why does measurement timing affect the strength of the first stage?
 - Consider data availability and measurement error
 
 **Exclusion Restriction:**
+
 - If mortality was measured long after colonization, what other channels might exist?
 - Could later mortality reflect economic conditions rather than cause them?
 
 **Independence:**
+
 - Are there confounders that affect both late-measured mortality and outcomes?
 - Geographic or climatic factors?
 
-### 3.3 Assessment of AJR Results
+### Q3.3 Assessment of AJR Results
 
 Based on your analysis:
 
@@ -104,12 +177,11 @@ Based on your analysis:
 [Write your answer here]
 
 Consider:
+
 - Is the first stage strong enough?
 - Are the IV assumptions plausible given the timing issues?
 - What are the main threats to validity?
 - Would you believe the causal interpretation?
-
----
 
 ## Q4. Albouy's Critique of AJR (10 pts)
 
@@ -174,12 +246,11 @@ After Albouy reconstructs and corrects the mortality data:
 **Justification:**
 
 [Provide clear reasoning based on:
+
 - The strength of Albouy's critique
 - Your replication results
 - The plausibility of IV assumptions
 - The sensitivity of findings to data corrections]
-
----
 
 # Problem 2: Regression Discontinuity Design
 
@@ -205,8 +276,6 @@ cat("Running variable (X): Incumbent Party's Margin of Victory\n")
 cat("Outcome variable (Y): Incumbent Party Victory at t+1\n")
 ```
 
----
-
 ## Part B - Falsification Analysis
 
 ### Density Test
@@ -225,8 +294,6 @@ rdplotdensity(rddens, X = data$mv_incparty[!is.na(data$mv_incparty)],
 **Interpretation:**
 
 The density test checks whether there is evidence of manipulation around the threshold (margin of victory = 0). A significant discontinuity in the density would suggest that parties can manipulate their vote margins to barely win elections, which would violate the RD identifying assumptions.
-
----
 
 ### Covariate Balance Tests
 
@@ -250,8 +317,6 @@ for(c in 1:ncol(covs)){
 
 Covariate balance tests check whether pre-treatment characteristics are continuous at the threshold. If covariates jump discontinuously at the cutoff, this suggests the treatment is not "as-if" randomly assigned, which would undermine the validity of the RD design.
 
----
-
 ## Part C - Outcome Analysis
 
 ### RD Plot
@@ -262,8 +327,6 @@ rdplot(Y, X,
        y.label = "Incumbent Party Victory at t+1",
        x.label = "Incumbent Party's Margin of Victory at t")
 ```
-
----
 
 ### Continuity-Based RDD Analysis
 
@@ -281,8 +344,6 @@ cat("Bandwidth (right):", rdr$bws[2], "\n")
 cat("Effective N (left):", rdr$N_h[1], "\n")
 cat("Effective N (right):", rdr$N_h[2], "\n")
 ```
-
----
 
 ### RDD Analysis with Covariates
 
@@ -306,8 +367,6 @@ cat("Effective N (right):", rdrcovs$N_h[2], "\n")
 The RDD estimates show the causal effect of barely winning an election (vs. barely losing) on the probability of the incumbent party winning the next election. This tests the "incumbency curse" hypothesis - that winning may actually hurt a party's chances in the next election due to weak parties and term limits in Brazilian municipalities.
 
 Compare the estimates with and without covariates. If they are similar, this provides additional evidence that the RD design is valid (covariates should not matter much if treatment is as-if random near the threshold).
-
----
 
 ## Part D - Local Randomization Approach
 
@@ -333,8 +392,6 @@ cat("P-value:", rdrand$p.value, "\n")
 
 The local randomization approach assumes that units very close to the threshold (within a narrow window) are essentially randomly assigned to treatment. This provides an alternative inference method that doesn't rely on asymptotic approximations and may be more appropriate with discrete running variables.
 
----
-
 ## Part E - Assessment
 
 **Key Findings:**
@@ -351,8 +408,6 @@ The local randomization approach assumes that units very close to the threshold 
 
 [Your assessment of whether the RDD design is credible in this context and whether the findings support the "incumbency curse" hypothesis]
 
----
-
 # References
 
 Acemoglu, D., Johnson, S., & Robinson, J. A. (2001). The Colonial Origins of Comparative Development: An Empirical Investigation. *American Economic Review*, 91(5), 1369–1401.
@@ -360,8 +415,6 @@ Acemoglu, D., Johnson, S., & Robinson, J. A. (2001). The Colonial Origins of Com
 Albouy, D. (2012). The Colonial Origins of Comparative Development: An Investigation of the Settler Mortality Data. *American Economic Review*, 102(6), 3059–3076.
 
 Klašnja, M., & Titiunik, R. (2017). The Incumbency Curse: Weak Parties, Term Limits, and Unfulfilled Accountability. *American Political Science Review*, 111(1), 129-148.
-
----
 
 # Session Information
 
