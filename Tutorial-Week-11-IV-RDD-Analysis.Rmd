@@ -3,6 +3,9 @@ title: "Tutorial Week 11: Instrumental Variable (IV) Analysis and RDD"
 author: "Your Name"
 date: "`r Sys.Date()`"
 output:
+  pdf_document:
+    toc: true
+    number_sections: true
   html_document:
     toc: true
     toc_float: true
@@ -11,9 +14,6 @@ output:
     code_folding: show
     theme: flatly
     highlight: tango
-  pdf_document:
-    toc: true
-    number_sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -48,7 +48,6 @@ for (pkg in packages) {
 ```{r load-data}
 # Load the AJR (2001) replication data
 ajr_data <- haven::read_dta("acemoglu.dta")
-cat("Data loaded successfully!\n")
 cat("Observations:", nrow(ajr_data), "\n")
 cat("Variables:", ncol(ajr_data), "\n")
 ```
@@ -94,14 +93,7 @@ Address each IV assumption:
 Based on your analysis:
 
 ```{r ajr-assessment}
-cat("=== ASSESSMENT OF AJR (2001) ===\n\n")
-cat("First-stage F-statistic:", round(first_stage_fstat, 2), "\n")
-cat("Strong instrument?", ifelse(first_stage_fstat > 10, "YES", "NO"), "\n\n")
-cat("2SLS coefficient:", round(observed_coef, 4), "\n")
-cat("Statistical significance:", format.pval(beta_2_pval), "\n\n")
 
-cat("Do you find the results convincing?\n")
-cat("[Write your answer below]\n")
 ```
 
 **Your assessment:**
@@ -192,7 +184,7 @@ After Albouy reconstructs and corrects the mortality data:
 
 ```{r load-rd-data}
 # Load RD data
-data <- read.csv("Replication code/CTV_2020_Sage.csv")
+data <- read.csv("CTV_2020_Sage.csv")
 
 # Define outcome, running variable, and covariates
 Y <- data$mv_incpartyfor1
