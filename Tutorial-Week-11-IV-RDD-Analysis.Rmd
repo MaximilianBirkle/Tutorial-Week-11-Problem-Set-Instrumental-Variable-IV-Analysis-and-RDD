@@ -1,6 +1,9 @@
 ---
 title: "Tutorial Week 11: Instrumental Variable (IV) Analysis and RDD"
-author: "Your Name"
+author:
+  - Maximilian Birkle
+  - Daniel Lehmann
+  - Henry Lucas
 date: "`r Sys.Date()`"
 output:
   pdf_document:
