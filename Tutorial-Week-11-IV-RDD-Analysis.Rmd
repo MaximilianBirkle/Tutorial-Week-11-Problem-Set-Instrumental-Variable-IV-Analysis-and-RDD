@@ -32,7 +32,8 @@ knitr::opts_chunk$set(
 ```{r load-packages}
 # Install packages if needed
 packages <- c("AER", "haven", "dplyr", "ggplot2", "stargazer",
-              "boot", "lmtest", "sandwich", "knitr", "kableExtra")
+              "boot", "lmtest", "sandwich", "knitr", "kableExtra",
+              "rdrobust", "rddensity", "rdlocrand")
 
 for (pkg in packages) {
   if (!require(pkg, character.only = TRUE)) {
@@ -46,403 +47,13 @@ for (pkg in packages) {
 
 ```{r load-data}
 # Load the AJR (2001) replication data
-# Make sure you've downloaded maketable5.dta to the data/ directory
-# See data/DATA_INSTRUCTIONS.md for download instructions
-
-if (file.exists("data/maketable5.dta")) {
-  ajr_data <- haven::read_dta("data/maketable5.dta")
-  cat("Data loaded successfully!\n")
-  cat("Observations:", nrow(ajr_data), "\n")
-  cat("Variables:", ncol(ajr_data), "\n")
-} else {
-  stop("Data file not found. Please download maketable5.dta to the data/ directory.
-       See data/DATA_INSTRUCTIONS.md for instructions.")
-}
-```
-
-```{r data-exploration}
-# Explore the data structure
-str(ajr_data)
-summary(ajr_data)
-
-# Display first few rows
-head(ajr_data) %>%
-  kable(caption = "First 6 rows of AJR data") %>%
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+ajr_data <- haven::read_dta("acemoglu.dta")
+cat("Data loaded successfully!\n")
+cat("Observations:", nrow(ajr_data), "\n")
+cat("Variables:", ncol(ajr_data), "\n")
 ```
 
 # Problem 1: Instrumental Variable Analysis
-
-## Q1. Writing and Estimating the IV Model (10 pts)
-
-### 1.1 Write down the two-equation IV system
-
-**Notation:**
-
-- $Y_i$: Log GDP per capita (outcome variable)
-- $T_i$: Institutional quality measure (endogenous regressor)
-- $Z_i$: Log settler mortality (instrument)
-- $X_i$: Control variables (f_french, f_brit, sjlofr, catho80, muslim80, no_cpm80, lat_abst)
-
-**Two-Stage IV System:**
-
-**First Stage:**
-$$T_i = \alpha_1 + \beta_1 Z_i + \mathbf{X}_i' \gamma_1 + \varepsilon_{1i}$$
-
-**Reduced Form:**
-$$Y_i = \alpha_2 + \delta_1 Z_i + \mathbf{X}_i' \gamma_2 + \varepsilon_{2i}$$
-
-**2SLS (Second Stage):**
-$$Y_i = \alpha_3 + \beta_2 T_i + \mathbf{X}_i' \gamma_3 + \varepsilon_{3i}$$
-
-Where:
-- $\beta_1$ measures the effect of settler mortality on institutions (first stage)
-- $\delta_1$ is the reduced-form effect of settler mortality on GDP
-- $\beta_2$ is the 2SLS estimate of institutions on GDP
-- Note: $\beta_2 = \delta_1 / \beta_1$ (Wald estimator)
-
-### 1.2 Data Preparation
-
-```{r data-prep}
-# Define the control variables as specified in README
-controls <- c("f_french", "f_brit", "sjlofr", "catho80",
-              "muslim80", "no_cpm80", "lat_abst")
-
-# Identify key variables (adjust these based on actual variable names in data)
-# You may need to check the actual variable names and adjust accordingly
-# Common names in AJR data:
-# - logpgp95: log GDP per capita 1995
-# - avexpr: average protection against expropriation risk (institutions)
-# - logem4: log settler mortality
-
-# Check available variables
-cat("Available variables:\n")
-names(ajr_data)
-
-# TODO: Update these variable names based on actual data
-outcome_var <- "logpgp95"      # Adjust if needed
-endog_var <- "avexpr"           # Adjust if needed
-instrument_var <- "logem4"      # Adjust if needed
-
-# Create analysis dataset (complete cases only)
-ajr_clean <- ajr_data %>%
-  select(all_of(c(outcome_var, endog_var, instrument_var, controls))) %>%
-  na.omit()
-
-cat("\nClean dataset observations:", nrow(ajr_clean), "\n")
-```
-
-### 1.3 First Stage Estimation
-
-```{r first-stage}
-# First stage: regress endogenous variable on instrument + controls
-first_stage_formula <- as.formula(paste(
-  endog_var, "~", instrument_var, "+", paste(controls, collapse = " + ")
-))
-
-first_stage <- lm(first_stage_formula, data = ajr_clean)
-
-# Display results
-summary(first_stage)
-
-# Extract first-stage F-statistic
-first_stage_fstat <- summary(first_stage)$fstatistic[1]
-cat("\n=== FIRST STAGE F-STATISTIC ===\n")
-cat("F-statistic:", first_stage_fstat, "\n")
-cat("Rule of thumb: F > 10 indicates strong instrument\n")
-cat("Strong instrument?", ifelse(first_stage_fstat > 10, "YES", "NO"), "\n")
-
-# Get coefficient on instrument
-beta_1 <- coef(first_stage)[instrument_var]
-cat("\nFirst-stage coefficient on Z (beta_1):", beta_1, "\n")
-```
-
-### 1.4 Reduced Form Estimation
-
-```{r reduced-form}
-# Reduced form: regress outcome on instrument + controls
-reduced_form_formula <- as.formula(paste(
-  outcome_var, "~", instrument_var, "+", paste(controls, collapse = " + ")
-))
-
-reduced_form <- lm(reduced_form_formula, data = ajr_clean)
-
-# Display results
-summary(reduced_form)
-
-# Get coefficient on instrument
-delta_1 <- coef(reduced_form)[instrument_var]
-cat("\n=== REDUCED FORM COEFFICIENT ===\n")
-cat("Reduced-form coefficient on Z (delta_1):", delta_1, "\n")
-```
-
-### 1.5 Two-Stage Least Squares (2SLS)
-
-```{r twosls}
-# 2SLS using AER::ivreg
-# Syntax: outcome ~ endogenous + controls | instrument + controls
-
-tsls_formula <- as.formula(paste(
-  outcome_var, "~", endog_var, "+", paste(controls, collapse = " + "),
-  "|", instrument_var, "+", paste(controls, collapse = " + ")
-))
-
-tsls_model <- AER::ivreg(tsls_formula, data = ajr_clean)
-
-# Display results
-summary(tsls_model, diagnostics = TRUE)
-
-# Extract 2SLS coefficient
-beta_2 <- coef(tsls_model)[endog_var]
-cat("\n=== 2SLS COEFFICIENT ===\n")
-cat("2SLS estimate (beta_2):", beta_2, "\n")
-
-# Verify Wald estimator relationship
-cat("\nVerification: beta_2 = delta_1 / beta_1\n")
-cat("delta_1 / beta_1 =", delta_1 / beta_1, "\n")
-cat("beta_2 =", beta_2, "\n")
-```
-
-### 1.6 Comparison Table
-
-```{r results-table}
-# Create comparison table
-stargazer(first_stage, reduced_form, tsls_model,
-          type = "text",
-          title = "First Stage, Reduced Form, and 2SLS Results",
-          column.labels = c("First Stage", "Reduced Form", "2SLS"),
-          dep.var.labels = c(endog_var, outcome_var, outcome_var),
-          keep.stat = c("n", "rsq", "f"),
-          omit.table.layout = "n")
-```
-
-### 1.7 Interpretation
-
-```{r interpretation-q1}
-cat("=== INTERPRETATION OF RESULTS ===\n\n")
-
-cat("1. REDUCED-FORM COEFFICIENT (delta_1):\n")
-cat("   Value:", round(delta_1, 4), "\n")
-cat("   Interpretation: A 1-unit increase in log settler mortality is associated\n")
-cat("   with a", round(delta_1, 4), "unit change in log GDP per capita.\n\n")
-
-cat("2. FIRST-STAGE COEFFICIENT (beta_1):\n")
-cat("   Value:", round(beta_1, 4), "\n")
-cat("   F-statistic:", round(first_stage_fstat, 2), "\n")
-cat("   Interpretation: A 1-unit increase in log settler mortality predicts a\n")
-cat("   ", round(beta_1, 4), "unit change in institutional quality.\n")
-cat("   Strong instrument?", ifelse(first_stage_fstat > 10, "YES - F > 10", "NO - Weak instrument"), "\n\n")
-
-cat("3. 2SLS ESTIMATE (beta_2):\n")
-cat("   Value:", round(beta_2, 4), "\n")
-tsls_summary <- summary(tsls_model)
-beta_2_pval <- tsls_summary$coefficients[endog_var, "Pr(>|t|)"]
-cat("   P-value:", format.pval(beta_2_pval), "\n")
-cat("   Interpretation: A 1-unit improvement in institutional quality\n")
-cat("   causes a", round(beta_2, 4), "unit increase in log GDP per capita.\n")
-cat("   Statistically significant?", ifelse(beta_2_pval < 0.05, "YES", "NO"),
-    "at 5% level\n")
-```
-
----
-
-## Q2. Randomization and Resampling (10 pts)
-
-### Q2(a). Permutation Test
-
-**Null Hypothesis:** The instrument has no effect on the outcome; any observed relationship is due to chance.
-
-Formally: $H_0: \beta_2 = 0$ (the IV coefficient equals zero)
-
-```{r permutation-test}
-set.seed(12345)  # For reproducibility
-
-# Number of permutations
-n_perm <- 1000
-
-# Observed 2SLS coefficient
-observed_coef <- coef(tsls_model)[endog_var]
-
-# Storage for permutation distribution
-perm_coefs <- numeric(n_perm)
-
-# Permutation test: shuffle the endogenous variable
-cat("Running permutation test with", n_perm, "permutations...\n")
-
-for (i in 1:n_perm) {
-  # Shuffle the endogenous variable
-  ajr_clean_perm <- ajr_clean
-  ajr_clean_perm[[endog_var]] <- sample(ajr_clean[[endog_var]])
-
-  # Re-estimate 2SLS
-  tsls_perm <- AER::ivreg(tsls_formula, data = ajr_clean_perm)
-  perm_coefs[i] <- coef(tsls_perm)[endog_var]
-}
-
-# Calculate permutation p-value (two-tailed)
-perm_pval <- mean(abs(perm_coefs) >= abs(observed_coef))
-
-cat("\n=== PERMUTATION TEST RESULTS ===\n")
-cat("Observed coefficient:", round(observed_coef, 4), "\n")
-cat("Permutation p-value:", round(perm_pval, 4), "\n")
-cat("Normal-approximation p-value:", format.pval(beta_2_pval), "\n")
-cat("\nInterpretation:\n")
-cat("Under the null hypothesis of no effect, the probability of observing\n")
-cat("a coefficient as extreme as", round(observed_coef, 4), "is", round(perm_pval, 4), "\n")
-
-# Visualize permutation distribution
-perm_df <- data.frame(coef = perm_coefs)
-
-ggplot(perm_df, aes(x = coef)) +
-  geom_histogram(bins = 50, fill = "skyblue", color = "black", alpha = 0.7) +
-  geom_vline(xintercept = observed_coef, color = "red", size = 1.5, linetype = "dashed") +
-  geom_vline(xintercept = -observed_coef, color = "red", size = 1.5, linetype = "dashed") +
-  labs(title = "Permutation Distribution of 2SLS Coefficient",
-       subtitle = paste("Observed coefficient =", round(observed_coef, 3),
-                        "| Permutation p-value =", round(perm_pval, 4)),
-       x = "2SLS Coefficient",
-       y = "Frequency") +
-  theme_minimal()
-```
-
-**Discussion:**
-
-Compare the permutation p-value to the normal-approximation p-value. Discuss:
-- Are they similar or different?
-- What does this tell us about the validity of asymptotic inference in this sample?
-- When might permutation tests be preferred over standard t-tests?
-
----
-
-### Q2(b). Bootstrap Confidence Intervals
-
-```{r bootstrap-ci}
-set.seed(67890)
-
-# Number of bootstrap samples
-n_boot <- 1000
-
-# Bootstrap function for 2SLS
-boot_2sls <- function(data, indices) {
-  boot_data <- data[indices, ]
-  boot_model <- AER::ivreg(tsls_formula, data = boot_data)
-  return(coef(boot_model)[endog_var])
-}
-
-# Run bootstrap
-cat("Running bootstrap with", n_boot, "replications...\n")
-boot_results <- boot(data = ajr_clean, statistic = boot_2sls, R = n_boot)
-
-# Display bootstrap results
-print(boot_results)
-
-# 1. Efron Percentile CI
-percentile_ci <- boot.ci(boot_results, type = "perc", conf = 0.95)
-
-# 2. Bias-Corrected (BC) CI
-bc_ci <- boot.ci(boot_results, type = "bca", conf = 0.95)
-
-# Display confidence intervals
-cat("\n=== BOOTSTRAP CONFIDENCE INTERVALS (95%) ===\n\n")
-
-cat("1. EFRON PERCENTILE CI:\n")
-cat("   [", round(percentile_ci$percent[4], 4), ",",
-    round(percentile_ci$percent[5], 4), "]\n")
-cat("   Includes zero?",
-    ifelse(percentile_ci$percent[4] < 0 & percentile_ci$percent[5] > 0, "YES", "NO"), "\n\n")
-
-cat("2. BIAS-CORRECTED (BC) CI:\n")
-cat("   [", round(bc_ci$bca[4], 4), ",",
-    round(bc_ci$bca[5], 4), "]\n")
-cat("   Includes zero?",
-    ifelse(bc_ci$bca[4] < 0 & bc_ci$bca[5] > 0, "YES", "NO"), "\n\n")
-
-# Visualize bootstrap distribution
-boot_df <- data.frame(coef = boot_results$t[,1])
-
-ggplot(boot_df, aes(x = coef)) +
-  geom_histogram(bins = 50, fill = "lightgreen", color = "black", alpha = 0.7) +
-  geom_vline(xintercept = observed_coef, color = "red", size = 1.5) +
-  geom_vline(xintercept = percentile_ci$percent[4], color = "blue", linetype = "dashed") +
-  geom_vline(xintercept = percentile_ci$percent[5], color = "blue", linetype = "dashed") +
-  labs(title = "Bootstrap Distribution of 2SLS Coefficient",
-       subtitle = "Blue dashed lines = 95% Percentile CI",
-       x = "2SLS Coefficient",
-       y = "Frequency") +
-  theme_minimal()
-```
-
-**Comparison of Confidence Intervals:**
-
-```{r ci-comparison}
-# Standard normal-based CI (from 2SLS)
-tsls_se <- tsls_summary$coefficients[endog_var, "Std. Error"]
-normal_ci <- c(observed_coef - 1.96 * tsls_se, observed_coef + 1.96 * tsls_se)
-
-# Create comparison table
-ci_table <- data.frame(
-  Method = c("Normal Approximation", "Efron Percentile", "Bias-Corrected"),
-  Lower = c(normal_ci[1], percentile_ci$percent[4], bc_ci$bca[4]),
-  Upper = c(normal_ci[2], percentile_ci$percent[5], bc_ci$bca[5]),
-  Width = c(diff(normal_ci),
-            percentile_ci$percent[5] - percentile_ci$percent[4],
-            bc_ci$bca[5] - bc_ci$bca[4]),
-  Includes_Zero = c(
-    normal_ci[1] < 0 & normal_ci[2] > 0,
-    percentile_ci$percent[4] < 0 & percentile_ci$percent[5] > 0,
-    bc_ci$bca[4] < 0 & bc_ci$bca[5] > 0
-  )
-)
-
-kable(ci_table, digits = 4,
-      caption = "Comparison of 95% Confidence Intervals") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"))
-
-cat("\n=== INTERPRETATION ===\n")
-cat("Width comparison:\n")
-cat("Normal CI width:", round(ci_table$Width[1], 4), "\n")
-cat("Percentile CI width:", round(ci_table$Width[2], 4), "\n")
-cat("BC CI width:", round(ci_table$Width[3], 4), "\n\n")
-
-cat("What does this imply about the sampling distribution?\n")
-cat("- If bootstrap CIs are wider: suggests heavier tails or skewness\n")
-cat("- If bootstrap CIs are narrower: normal approximation may be conservative\n")
-cat("- If BC differs from percentile: evidence of bias in the estimate\n")
-```
-
----
-
-### Q2(c). Conceptual: Permutation vs Bootstrap
-
-**Permutation Test:**
-
-- **What it measures:** Tests the null hypothesis that the treatment/instrument has NO EFFECT
-- **What is held fixed:** The marginal distribution of each variable
-- **What is resampled:** The assignment/pairing between variables (breaks association)
-- **Assumption:** Exchangeability under the null hypothesis
-- **Purpose:** Hypothesis testing (generates null distribution)
-- **Question answered:** "What would we observe if there were truly no relationship?"
-
-**Bootstrap:**
-
-- **What it measures:** Estimates the sampling distribution of a statistic
-- **What is held fixed:** The observed data's empirical distribution
-- **What is resampled:** Entire observations (preserves relationships)
-- **Assumption:** The sample is representative of the population
-- **Purpose:** Inference (standard errors, confidence intervals)
-- **Question answered:** "What is the uncertainty around our estimate?"
-
-**Why they answer conceptually different questions:**
-
-The permutation test asks whether the observed relationship could have occurred by chance if there were truly no effect. It creates a world where the null hypothesis is true by breaking the connection between variables.
-
-The bootstrap asks how much our estimate would vary if we could repeatedly sample from the same population. It preserves relationships and estimates sampling variability.
-
-In other words:
-- Permutation: "Is there an effect?" (hypothesis test)
-- Bootstrap: "How precisely can we estimate the effect?" (uncertainty quantification)
-
----
 
 ## Q3. Instrument Validity and Timing (10 pts)
 
@@ -575,97 +186,175 @@ After Albouy reconstructs and corrects the mortality data:
 
 ---
 
-# Problem 2: Regression Discontinuity Design (OPTIONAL)
+# Problem 2: Regression Discontinuity Design
 
-## Part A - Theory and Identification
+## Part A - Data Loading and Setup
 
-### Q1. Political Theory and RD Design
+```{r load-rd-data}
+# Load RD data
+data <- read.csv("Replication code/CTV_2020_Sage.csv")
 
-**1. The Incumbency Curse:**
+# Define outcome, running variable, and covariates
+Y <- data$mv_incpartyfor1
+X <- data$mv_incparty
 
-[Your answer - describe the theory]
+covs <- data[, c("pibpc", "population", "numpar_candidates_eff",
+                 "party_DEM_wonlag1_b1", "party_PSDB_wonlag1_b1",
+                 "party_PT_wonlag1_b1", "party_PMDB_wonlag1_b1")]
+covsnm <- c("GDP per capita", "Population", "No. Effective Parties",
+            "DEM Victory t-1", "PSDB Victory t-1", "PT Victory t-1", "PMDB Victory t-1")
 
-**2. Identification Strategy:**
-
-[Your answer - explain the RD design]
-
-**3. RD Assumptions:**
-
-**Formal statements:**
-
-1. Continuity of potential outcomes:
-   $$E[Y_i(0)|X_i = c] = E[Y_i(1)|X_i = c]$$
-
-2. No manipulation of the running variable
-
-**Interpretation in political context:**
-
-[Your answer]
-
-**4. Potential violations:**
-
-Scenario 1: [Your answer]
-
-Scenario 2: [Your answer]
+cat("RDD data loaded successfully!\n")
+cat("Observations:", nrow(data), "\n")
+cat("Running variable (X): Incumbent Party's Margin of Victory\n")
+cat("Outcome variable (Y): Incumbent Party Victory at t+1\n")
+```
 
 ---
 
-## Part B - Descriptive Statistics and Main Results
+## Part B - Falsification Analysis
 
-```{r load-rd-data, eval=FALSE}
-# Load RD data (if available)
-if (file.exists("data/KlasnjaTitiunik-Brazil-data.dta")) {
-  rd_data <- haven::read_dta("data/KlasnjaTitiunik-Brazil-data.dta")
+### Density Test
 
-  # Q2.1: Replicate Table 1
-  # [Add code here]
+```{r density-test}
+# McCrary density test using rddensity
+rddens <- rddensity(X)
+summary(rddens)
 
-  # Q2.2: Replicate Table 2 (main RD estimates)
-  # [Add code here]
+# Plot the density
+rdplotdensity(rddens, X = data$mv_incparty[!is.na(data$mv_incparty)],
+              xlab = "Incumbent Party's Margin of Victory at t",
+              ylab = "Estimated density")
+```
 
-  # Q2.3: Replicate Figure 1 (RD plot)
-  # [Add code here]
+**Interpretation:**
 
-  # Q2.4: Interpretation
-  # [Write interpretation]
-} else {
-  cat("RDD data not available. Skipping optional section.\n")
+The density test checks whether there is evidence of manipulation around the threshold (margin of victory = 0). A significant discontinuity in the density would suggest that parties can manipulate their vote margins to barely win elections, which would violate the RD identifying assumptions.
+
+---
+
+### Covariate Balance Tests
+
+```{r covariate-balance}
+# Test for balance in covariates at the threshold
+for(c in 1:ncol(covs)){
+  cat("\n=== Testing covariate:", covsnm[c], "===\n")
+  rdr_cov <- rdrobust(covs[,c], X)
+  print(summary(rdr_cov))
+
+  # Create RD plot for this covariate
+  rdplot(covs[,c], X,
+         y.label = covsnm[c],
+         x.label = "Incumbent Party's Margin of Victory",
+         x.lim = c(-30, 30),
+         binselect = "qsmv")
 }
 ```
 
+**Interpretation:**
+
+Covariate balance tests check whether pre-treatment characteristics are continuous at the threshold. If covariates jump discontinuously at the cutoff, this suggests the treatment is not "as-if" randomly assigned, which would undermine the validity of the RD design.
+
 ---
 
-## Part C - McCrary Test
+## Part C - Outcome Analysis
 
-```{r mccrary-test, eval=FALSE}
-# Q3.1: Explain McCrary test
-# [Your answer]
+### RD Plot
 
-# Q3.2: Implement McCrary test
-# install.packages("rdd")
-library(rdd)
-
-# [Add code here]
-
-# Q3.3: Interpret results
-# [Your answer]
+```{r rd-plot}
+# Create RD plot of outcome variable
+rdplot(Y, X,
+       y.label = "Incumbent Party Victory at t+1",
+       x.label = "Incumbent Party's Margin of Victory at t")
 ```
 
 ---
 
-## Part D - Assumptions and Threats
+### Continuity-Based RDD Analysis
 
-### Q4. RD Validity in Brazilian Elections
+```{r rd-analysis-continuity}
+# Main RDD estimate without covariates
+rdr <- rdrobust(Y, X)
+summary(rdr)
 
-**1. Two processes that could violate continuity:**
+cat("\n=== RDD ESTIMATE (without covariates) ===\n")
+cat("Point estimate:", rdr$coef[1], "\n")
+cat("Robust p-value:", rdr$pv[3], "\n")
+cat("95% CI: [", rdr$ci[3,1], ",", rdr$ci[3,2], "]\n")
+cat("\nBandwidth (left):", rdr$bws[1], "\n")
+cat("Bandwidth (right):", rdr$bws[2], "\n")
+cat("Effective N (left):", rdr$N_h[1], "\n")
+cat("Effective N (right):", rdr$N_h[2], "\n")
+```
 
-Process 1: [Your answer]
+---
 
-Process 2: [Your answer]
+### RDD Analysis with Covariates
 
-**2. Evidence from density test:**
+```{r rd-analysis-covariates}
+# RDD estimate with covariates
+rdrcovs <- rdrobust(Y, X, covs = covs)
+summary(rdrcovs)
 
-[Your answer - does it support or undermine credibility?]
+cat("\n=== RDD ESTIMATE (with covariates) ===\n")
+cat("Point estimate:", rdrcovs$coef[1], "\n")
+cat("Robust p-value:", rdrcovs$pv[3], "\n")
+cat("95% CI: [", rdrcovs$ci[3,1], ",", rdrcovs$ci[3,2], "]\n")
+cat("\nBandwidth (left):", rdrcovs$bws[1], "\n")
+cat("Bandwidth (right):", rdrcovs$bws[2], "\n")
+cat("Effective N (left):", rdrcovs$N_h[1], "\n")
+cat("Effective N (right):", rdrcovs$N_h[2], "\n")
+```
+
+**Interpretation:**
+
+The RDD estimates show the causal effect of barely winning an election (vs. barely losing) on the probability of the incumbent party winning the next election. This tests the "incumbency curse" hypothesis - that winning may actually hurt a party's chances in the next election due to weak parties and term limits in Brazilian municipalities.
+
+Compare the estimates with and without covariates. If they are similar, this provides additional evidence that the RD design is valid (covariates should not matter much if treatment is as-if random near the threshold).
+
+---
+
+## Part D - Local Randomization Approach
+
+```{r rd-local-random}
+# Window selection for local randomization
+rdwin <- rdwinselect(X, covs, wmin = 0.05, wstep = 0.01, nwindows = 200,
+                     seed = 765, plot = TRUE, quietly = TRUE)
+
+# Use selected window (or manually choose)
+w <- 0.15
+
+# Randomization inference
+rdrand <- rdrandinf(Y, X, wl = -w, wr = w, reps = 1000, seed = 765)
+summary(rdrand)
+
+cat("\n=== LOCAL RANDOMIZATION INFERENCE ===\n")
+cat("Window: [", -w, ",", w, "]\n")
+cat("Treatment effect:", rdrand$obs.stat, "\n")
+cat("P-value:", rdrand$p.value, "\n")
+```
+
+**Interpretation:**
+
+The local randomization approach assumes that units very close to the threshold (within a narrow window) are essentially randomly assigned to treatment. This provides an alternative inference method that doesn't rely on asymptotic approximations and may be more appropriate with discrete running variables.
+
+---
+
+## Part E - Assessment
+
+**Key Findings:**
+
+1. **Density Test:** [Interpret whether there is evidence of manipulation]
+
+2. **Covariate Balance:** [Summarize whether covariates are balanced]
+
+3. **RDD Estimates:** [State the main findings about the incumbency effect]
+
+4. **Robustness:** [Assess whether estimates are stable across specifications]
+
+**Overall Validity:**
+
+[Your assessment of whether the RDD design is credible in this context and whether the findings support the "incumbency curse" hypothesis]
 
 ---
 
