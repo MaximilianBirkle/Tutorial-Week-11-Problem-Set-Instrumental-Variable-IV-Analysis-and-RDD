@@ -47,3 +47,15 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Data files
+*.dta
+*.csv
+data/*.dta
+data/*.csv
+
+# HTML output from R Markdown
+*.html
+
+# PDF output
+*.pdf
