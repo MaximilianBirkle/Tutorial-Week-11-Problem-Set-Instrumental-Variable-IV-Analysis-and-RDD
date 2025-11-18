@@ -257,6 +257,13 @@ After Albouy reconstructs and corrects the mortality data:
 ## Part A - Data Loading and Setup
 
 ```{r load-rd-data}
+# Ensure RDD packages are loaded
+library(rdrobust)
+library(rddensity)
+library(rdlocrand)
+library(knitr)
+library(kableExtra)
+
 # Load RD data
 data <- read.csv("CTV_2020_Sage.csv")
 
@@ -289,7 +296,28 @@ summary(rddens)
 rdplotdensity(rddens, X = data$mv_incparty[!is.na(data$mv_incparty)],
               xlab = "Incumbent Party's Margin of Victory at t",
               ylab = "Estimated density")
+
+# Create summary table for density test
+density_results <- data.frame(
+  Test = "Manipulation Test",
+  Statistic = sprintf("%.4f", rddens$test$t_jk),
+  `p-value` = sprintf("%.4f", rddens$test$p_jk),
+  Bandwidth = sprintf("%.2f / %.2f", rddens$h$left, rddens$h$right),
+  `N (Left)` = format(rddens$N$left, big.mark = ","),
+  `N (Right)` = format(rddens$N$right, big.mark = ","),
+  `Eff. N (Left)` = format(rddens$N$eff_left, big.mark = ","),
+  `Eff. N (Right)` = format(rddens$N$eff_right, big.mark = ","),
+  check.names = FALSE
+)
+
+kable(density_results,
+      booktabs = TRUE,
+      align = c("l", "r", "r", "c", "r", "r", "r", "r"),
+      caption = "Manipulation Test: Continuity of Density at Threshold") %>%
+  kable_styling(full_width = FALSE, position = "center")
 ```
+
+*Note: Test statistic based on local polynomial density estimation with triangular kernel. Null hypothesis: No discontinuity in density at threshold (no manipulation). High p-value indicates no evidence of manipulation around the cutoff.*
 
 **Interpretation:**
 
@@ -298,12 +326,15 @@ The density test checks whether there is evidence of manipulation around the thr
 ### Covariate Balance Tests
 
 ```{r covariate-balance}
+# Initialize lists to store results
+balance_results <- list()
+
 # Test for balance in covariates at the threshold
 for(c in 1:ncol(covs)){
-  cat("\n=== Testing covariate:", covsnm[c], "===\n")
+  cat("\n")
   rdr_cov <- rdrobust(covs[,c], X)
-  print(summary(rdr_cov))
-
+  balance_results[[c]] <- rdr_cov
+  
   # Create RD plot for this covariate
   rdplot(covs[,c], X,
          y.label = covsnm[c],
@@ -311,7 +342,27 @@ for(c in 1:ncol(covs)){
          x.lim = c(-30, 30),
          binselect = "qsmv")
 }
+
+# Create a summary table of balance tests
+balance_table <- data.frame(
+  Covariate = covsnm,
+  Coefficient = sprintf("%.4f", sapply(balance_results, function(x) x$coef[1])),
+  `Robust SE` = sprintf("%.4f", sapply(balance_results, function(x) x$se[3])),
+  `t-statistic` = sprintf("%.3f", sapply(balance_results, function(x) x$z[3])),
+  `p-value` = sprintf("%.3f", sapply(balance_results, function(x) x$pv[3])),
+  `N (Left)` = format(sapply(balance_results, function(x) x$N_h[1]), big.mark = ","),
+  `N (Right)` = format(sapply(balance_results, function(x) x$N_h[2]), big.mark = ","),
+  check.names = FALSE
+)
+
+kable(balance_table,
+      booktabs = TRUE,
+      align = c("l", "r", "r", "r", "r", "r", "r"),
+      caption = "Covariate Balance Tests at Threshold") %>%
+  kable_styling(full_width = FALSE, position = "center")
 ```
+
+*Note: Robust bias-corrected RD estimates using MSE-optimal bandwidth selection. Standard errors calculated using nearest-neighbor variance estimator.*
 
 **Interpretation:**
 
@@ -330,37 +381,44 @@ rdplot(Y, X,
 
 ### Continuity-Based RDD Analysis
 
-```{r rd-analysis-continuity}
+```{r rd-analysis-main}
 # Main RDD estimate without covariates
 rdr <- rdrobust(Y, X)
-summary(rdr)
 
-cat("\n=== RDD ESTIMATE (without covariates) ===\n")
-cat("Point estimate:", rdr$coef[1], "\n")
-cat("Robust p-value:", rdr$pv[3], "\n")
-cat("95% CI: [", rdr$ci[3,1], ",", rdr$ci[3,2], "]\n")
-cat("\nBandwidth (left):", rdr$bws[1], "\n")
-cat("Bandwidth (right):", rdr$bws[2], "\n")
-cat("Effective N (left):", rdr$N_h[1], "\n")
-cat("Effective N (right):", rdr$N_h[2], "\n")
-```
-
-### RDD Analysis with Covariates
-
-```{r rd-analysis-covariates}
 # RDD estimate with covariates
 rdrcovs <- rdrobust(Y, X, covs = covs)
-summary(rdrcovs)
 
-cat("\n=== RDD ESTIMATE (with covariates) ===\n")
-cat("Point estimate:", rdrcovs$coef[1], "\n")
-cat("Robust p-value:", rdrcovs$pv[3], "\n")
-cat("95% CI: [", rdrcovs$ci[3,1], ",", rdrcovs$ci[3,2], "]\n")
-cat("\nBandwidth (left):", rdrcovs$bws[1], "\n")
-cat("Bandwidth (right):", rdrcovs$bws[2], "\n")
-cat("Effective N (left):", rdrcovs$N_h[1], "\n")
-cat("Effective N (right):", rdrcovs$N_h[2], "\n")
+# Create a comprehensive results table
+results_table <- data.frame(
+  Specification = c("Without Covariates", "With Covariates"),
+  Coefficient = sprintf("%.4f", c(rdr$coef[1], rdrcovs$coef[1])),
+  `Conv. SE` = sprintf("%.4f", c(rdr$se[1], rdrcovs$se[1])),
+  `Robust SE` = sprintf("%.4f", c(rdr$se[3], rdrcovs$se[3])),
+  `p-value` = sprintf("%.3f", c(rdr$pv[3], rdrcovs$pv[3])),
+  `95% CI` = sprintf("[%.3f, %.3f]", c(rdr$ci[3,1], rdrcovs$ci[3,1]), 
+                                      c(rdr$ci[3,2], rdrcovs$ci[3,2])),
+  `BW (L/R)` = sprintf("%.2f / %.2f", c(rdr$bws[1], rdrcovs$bws[1]), 
+                                      c(rdr$bws[2], rdrcovs$bws[2])),
+  `N (Left)` = format(c(rdr$N_h[1], rdrcovs$N_h[1]), big.mark = ","),
+  `N (Right)` = format(c(rdr$N_h[2], rdrcovs$N_h[2]), big.mark = ","),
+  check.names = FALSE
+)
+
+kable(results_table,
+      booktabs = TRUE,
+      align = c("l", "r", "r", "r", "r", "c", "c", "r", "r"),
+      caption = "Regression Discontinuity Estimates: Effect of Incumbent Party Victory on Future Electoral Success") %>%
+  kable_styling(full_width = FALSE, position = "center")
+
+# Print detailed summary for reference
+cat("\n=== DETAILED RDD ESTIMATES ===\n\n")
+cat("--- Without Covariates ---\n")
+print(summary(rdr))
+cat("\n--- With Covariates ---\n")
+print(summary(rdrcovs))
 ```
+
+*Notes: Dependent variable is Incumbent Party Victory at t+1 (in percentage points). Robust bias-corrected confidence intervals and p-values reported. MSE-optimal bandwidth selection with triangular kernel. BW (L/R) shows left/right bandwidths. Covariates include GDP per capita, Population, No. Effective Parties, and DEM/PSDB/PT/PMDB Victory at t-1.*
 
 **Interpretation:**
 
@@ -380,13 +438,33 @@ w <- 0.15
 
 # Randomization inference
 rdrand <- rdrandinf(Y, X, wl = -w, wr = w, reps = 1000, seed = 765)
-summary(rdrand)
 
-cat("\n=== LOCAL RANDOMIZATION INFERENCE ===\n")
-cat("Window: [", -w, ",", w, "]\n")
-cat("Treatment effect:", rdrand$obs.stat, "\n")
-cat("P-value:", rdrand$p.value, "\n")
+# Create local randomization results table
+local_rand_table <- data.frame(
+  Approach = c("Continuity-Based", "Local Randomization"),
+  Window = c(sprintf("±%.2f / ±%.2f", rdr$bws[1], rdr$bws[2]),
+             sprintf("±%.2f", w)),
+  Coefficient = sprintf("%.4f", c(rdr$coef[1], rdrand$obs.stat)),
+  `Robust SE` = c(sprintf("%.4f", rdr$se[3]), "—"),
+  `p-value` = sprintf("%.3f", c(rdr$pv[3], rdrand$p.value)),
+  `95% CI` = c(sprintf("[%.3f, %.3f]", rdr$ci[3,1], rdr$ci[3,2]), "—"),
+  `N (Left)` = format(c(rdr$N_h[1], rdrand$sumstats[1]), big.mark = ","),
+  `N (Right)` = format(c(rdr$N_h[2], rdrand$sumstats[2]), big.mark = ","),
+  Method = c("Asymptotic", "Permutation"),
+  check.names = FALSE
+)
+
+kable(local_rand_table,
+      booktabs = TRUE,
+      align = c("l", "c", "r", "r", "r", "c", "r", "r", "l"),
+      caption = "Comparison of RDD Approaches: Continuity-Based vs. Local Randomization") %>%
+  kable_styling(full_width = FALSE, position = "center")
+
+cat("\n=== LOCAL RANDOMIZATION INFERENCE (Detailed) ===\n")
+print(summary(rdrand))
 ```
+
+*Notes: Dependent variable is Incumbent Party Victory at t+1 (in percentage points). Local randomization uses 1,000 permutations with fixed margins assumption. Continuity-based approach uses MSE-optimal bandwidth with robust bias-correction. Local randomization assumes as-if random assignment within the narrow window.*
 
 **Interpretation:**
 
@@ -407,17 +485,3 @@ The local randomization approach assumes that units very close to the threshold 
 **Overall Validity:**
 
 [Your assessment of whether the RDD design is credible in this context and whether the findings support the "incumbency curse" hypothesis]
-
-# References
-
-Acemoglu, D., Johnson, S., & Robinson, J. A. (2001). The Colonial Origins of Comparative Development: An Empirical Investigation. *American Economic Review*, 91(5), 1369–1401.
-
-Albouy, D. (2012). The Colonial Origins of Comparative Development: An Investigation of the Settler Mortality Data. *American Economic Review*, 102(6), 3059–3076.
-
-Klašnja, M., & Titiunik, R. (2017). The Incumbency Curse: Weak Parties, Term Limits, and Unfulfilled Accountability. *American Political Science Review*, 111(1), 129-148.
-
-# Session Information
-
-```{r session-info}
-sessionInfo()
-```
