@@ -50,9 +50,9 @@ for (pkg in packages) {
 
 ```{r load-data}
 # Load the AJR (2001) replication data
-ajr_data <- haven::read_dta("acemoglu.dta")
-cat("Observations:", nrow(ajr_data), "\n")
-cat("Variables:", ncol(ajr_data), "\n")
+ajr_data_full <- haven::read_dta("acemoglu.dta")
+cat("Observations:", nrow(ajr_data_full), "\n")
+cat("Variables:", ncol(ajr_data_full), "\n")
 
 ```
 
@@ -89,6 +89,10 @@ cat("Variables:", ncol(ajr_data), "\n")
     - The 2SLS estimate of the effect of $T_i$ on $Y_i$. Is it statistically significant?
     
 ```{r q1_estimating_iv_model, results='asis'}
+
+# Clean dataset with complete cases
+ajr_data <- subset(ajr_data_full, baseco == 1)
+  
 
 # We define our control variables as a string for an easier formula building
 controls <- "lat_abst + f_french + f_brit + sjlofr + catho80 + muslim80 + no_cpm80"
@@ -140,6 +144,35 @@ stargazer(fs_model, rf_model, iv_model,
 3. Compare this p-value to the **normal-approximation p-value** from your 2SLS output.
     
     Discuss any differences and what they imply for small-sample IV inference.
+    
+```{r q2_permutation_test}
+
+# Permutation Test
+
+set.seed(123)
+n_perms <- 1000
+observed_coef <- coef(iv_model)["avexpr"]
+perm_coefs <- numeric(n_perms)
+
+for (i in 1:n_perms) {
+  # Shuffle the endogeneous variable
+  ajr_perm <- ajr_data
+  ajr_perm$avexpr <- sample(ajr_data$avexpr)
+  # Re-estimate IV on shuffled data
+  perm_model <- ivreg(iv_formula, data = ajr_perm)
+  perm_coefs[i] <- coef(perm_model)["avexpr"]
+}
+
+# We can calculate the p-values based on those results (two-sided)
+p_val_perm <- mean(abs(perm_coefs) >= abs(observed_coef))
+
+# The results are the following:
+cat("Permutation Test Results:\n")
+cat("Observed Coefficient:", observed_coef, "\n")
+cat("Permutation p-value:", p_val_perm, "\n")
+cat("Normal approx p-value:", summary(iv_model)$coefficients["avexpr", "Pr(>|t|)"], "\n")
+```
+
 
 ### Q2(b). Bootstrap Confidence Intervals
 
