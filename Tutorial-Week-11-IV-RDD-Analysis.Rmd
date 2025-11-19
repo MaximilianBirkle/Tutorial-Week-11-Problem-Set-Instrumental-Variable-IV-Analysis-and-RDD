@@ -53,6 +53,7 @@ for (pkg in packages) {
 ajr_data <- haven::read_dta("acemoglu.dta")
 cat("Observations:", nrow(ajr_data), "\n")
 cat("Variables:", ncol(ajr_data), "\n")
+
 ```
 
 # Problem 1: Instrumental Variable Analysis
@@ -86,6 +87,43 @@ cat("Variables:", ncol(ajr_data), "\n")
     - The first-stage coefficient on $Z_i$.
     - The **first-stage F-statistic**. Is it above the rule-of-thumb threshold of $\approx$ 10?
     - The 2SLS estimate of the effect of $T_i$ on $Y_i$. Is it statistically significant?
+    
+```{r q1_estimating_iv_model, results='asis'}
+
+# We define our control variables as a string for an easier formula building
+controls <- "lat_abst + f_french + f_brit + sjlofr + catho80 + muslim80 + no_cpm80"
+
+# First Stage: (Z_i -> T_i): We regress Endogeneous (avexpr) on Instrument (logem4) + Controls
+fs_formula <- as.formula(paste("avexpr ~ logem4 +", controls))
+fs_model <- lm(fs_formula, data = ajr_data)
+
+# Reduced Form: (Z_i -> Y_i): We regress Outcome (logpgp95) on Instrument (logem4) + Controls
+rf_formula <- as.formula(paste("logpgp95 ~ logem4 +", controls))
+rf_model <- lm(rf_formula, data = ajr_data)
+
+# 2SLS: (T_i -> Y_i): We regress Outcome (logpgp95) on Endogeneous (avexpr) + Controls
+# For this stage, we have to use the ivreg-command. Since T_i is endogeneous (Y -> X),
+# we need to run this command in order to isolate the specific variation in institutions
+# caused by historical mortality rates and uses only that chunk of variation to explain GDP
+iv_formula <- as.formula(paste("logpgp95 ~ avexpr +", controls, "| logem4 +", controls))
+iv_model <- ivreg(iv_formula, data = ajr_data)
+
+# For an instrumental variable to work, we have to verify that our instrumental variable Z_i
+# is not a 'weak instrument'. Therefore, the instrument (Mortality, Z_i) must trigger a 
+# significant change in the endogeneous variable (Institutions, T_i)
+f_test <- linearHypothesis(fs_model, "logem4 = 0")
+f_stat <- f_test$F[2]
+
+# Output results using stargazer
+stargazer(fs_model, rf_model, iv_model, 
+          type = "latex", 
+          title = "IV Analysis Results",
+          column.labels = c("First Stage", "Reduced Form", "2SLS"),
+          dep.var.labels = c("Exprop. Risk (T)", "Log GDP (Y)", "Log GDP (Y)"),
+          covariate.labels = c("Log Settler Mortality (Z)", "Exprop. Risk (T)"),
+          add.lines = list(c("First-Stage F-stat", round(f_stat, 2), "-", "-")))
+```
+
 
 ## Q2. Randomization and Resampling (10 pts)
 
