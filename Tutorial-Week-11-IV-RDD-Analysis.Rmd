@@ -128,6 +128,7 @@ stargazer(fs_model, rf_model, iv_model,
           add.lines = list(c("First-Stage F-stat", round(f_stat, 2), "-", "-")))
 ```
 
+___
 
 ## Q2. Randomization and Resampling (10 pts)
 
@@ -199,7 +200,6 @@ The standard $p$-value ($0.0028$), which is based on asymptotic (large-sample) a
 This finding has important implications, as the weak instrument problem combined with small sample size means that the 2SLS estimator falsely suggest strong evidence for a causal effect when, the data are consistent with no effect at all. This casts serious doubt on core empirical claim driven by the combination of a small sample size and a weak first-stage instrument ($F=5.3$). 
 
 ___
-
 
 ### Q2(b). Bootstrap Confidence Intervals
 
@@ -320,6 +320,8 @@ Key points to address:
 - In AJR's theory, high settler mortality $\rightarrow$ extractive institutions $\rightarrow$ lower growth
 - If institutions could affect mortality rates retroactively, the IV assumption fails
 - The exclusion restriction requires mortality affects GDP ONLY through institutions
+
+
 
 ### Q3.2 Timing Problems
 

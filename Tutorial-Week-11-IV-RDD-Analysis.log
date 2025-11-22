@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.9.9)  22 NOV 2025 12:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.9.9)  22 NOV 2025 12:54
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -715,7 +715,7 @@ File: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/density-test-1.pdf Gr
 aphic file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/density-test-1.pdf>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/de
-nsity-test-1.pdf  used on input line 934.
+nsity-test-1.pdf  used on input line 936.
 (pdftex.def)             Requested size: 469.74974pt x 267.2942pt.
 
 
@@ -726,13 +726,13 @@ File: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/density-test-2.pdf Gr
 aphic file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/density-test-2.pdf>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/de
-nsity-test-2.pdf  used on input line 966.
+nsity-test-2.pdf  used on input line 968.
 (pdftex.def)             Requested size: 469.74974pt x 267.2942pt.
 
 
 [12 <./Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/density-test-1.pdf>]
 
-Overfull \hbox (29.69011pt too wide) in alignment at lines 991--998
+Overfull \hbox (29.69011pt too wide) in alignment at lines 993--1000
  [] [] [] [] [] [] [] [] 
  []
 
@@ -746,7 +746,7 @@ df Graphic file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-1.pd
 f>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/co
-variate-balance-1.pdf  used on input line 1036.
+variate-balance-1.pdf  used on input line 1038.
 (pdftex.def)             Requested size: 469.74974pt x 279.20337pt.
 <Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-2.pdf, i
 d=159, 712.6625pt x 423.5825pt>
@@ -755,7 +755,7 @@ df Graphic file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-2.pd
 f>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/co
-variate-balance-2.pdf  used on input line 1037.
+variate-balance-2.pdf  used on input line 1039.
 (pdftex.def)             Requested size: 469.74974pt x 279.20337pt.
 <Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-3.pdf, i
 d=160, 712.6625pt x 423.5825pt>
@@ -764,7 +764,7 @@ df Graphic file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-3.pd
 f>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/co
-variate-balance-3.pdf  used on input line 1038.
+variate-balance-3.pdf  used on input line 1040.
 (pdftex.def)             Requested size: 469.74974pt x 279.20337pt.
 <Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-4.pdf, i
 d=161, 712.6625pt x 423.5825pt>
@@ -773,7 +773,7 @@ df Graphic file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-4.pd
 f>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/co
-variate-balance-4.pdf  used on input line 1039.
+variate-balance-4.pdf  used on input line 1041.
 (pdftex.def)             Requested size: 469.74974pt x 279.20337pt.
 <Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-5.pdf, i
 d=162, 712.6625pt x 423.5825pt>
@@ -782,7 +782,7 @@ df Graphic file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-5.pd
 f>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/co
-variate-balance-5.pdf  used on input line 1040.
+variate-balance-5.pdf  used on input line 1042.
 (pdftex.def)             Requested size: 469.74974pt x 279.20337pt.
 <Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-6.pdf, i
 d=163, 712.6625pt x 423.5825pt>
@@ -791,7 +791,7 @@ df Graphic file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-6.pd
 f>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/co
-variate-balance-6.pdf  used on input line 1041.
+variate-balance-6.pdf  used on input line 1043.
 (pdftex.def)             Requested size: 469.74974pt x 279.20337pt.
 <Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-7.pdf, i
 d=164, 712.6625pt x 423.5825pt>
@@ -800,35 +800,35 @@ df Graphic file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-7.pd
 f>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/co
-variate-balance-7.pdf  used on input line 1042.
+variate-balance-7.pdf  used on input line 1044.
 (pdftex.def)             Requested size: 469.74974pt x 279.20337pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 1036--1043
+Underfull \hbox (badness 10000) in paragraph at lines 1038--1045
 [][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1036--1043
+Underfull \hbox (badness 10000) in paragraph at lines 1038--1045
 []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1036--1043
+Underfull \hbox (badness 10000) in paragraph at lines 1038--1045
 []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1036--1043
+Underfull \hbox (badness 10000) in paragraph at lines 1038--1045
 []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1036--1043
+Underfull \hbox (badness 10000) in paragraph at lines 1038--1045
 []
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1036--1043
+Underfull \hbox (badness 10000) in paragraph at lines 1038--1045
 []
  []
 
@@ -844,11 +844,11 @@ pdf> <./Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-3
 [16 <./Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-4.
 pdf> <./Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/covariate-balance-5
 .pdf>]
-Underfull \vbox (badness 10000) detected at line 1064
+Underfull \vbox (badness 10000) detected at line 1066
  []
 
 
-Overfull \vbox (1.18945pt too high) detected at line 1064
+Overfull \vbox (1.18945pt too high) detected at line 1066
  []
 
 
@@ -862,12 +862,12 @@ File: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/rd-plot-1.pdf Graphic
  file (type pdf)
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/rd-plot-1.pdf>
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/rd
--plot-1.pdf  used on input line 1106.
+-plot-1.pdf  used on input line 1108.
 (pdftex.def)             Requested size: 469.74974pt x 279.20337pt.
 
 
 [18]
-Overfull \hbox (96.30067pt too wide) in alignment at lines 1143--1151
+Overfull \hbox (96.30067pt too wide) in alignment at lines 1145--1153
  [] [] [] [] [] [] [] [] [] 
  []
 
@@ -883,7 +883,7 @@ File: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/rd-local-random-1.pdf
 <use Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/rd-local-random-1.pdf>
 
 Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/rd
--local-random-1.pdf  used on input line 1286.
+-local-random-1.pdf  used on input line 1288.
 (pdftex.def)             Requested size: 469.75792pt x 244.7938pt.
 
 
@@ -891,7 +891,7 @@ Package pdftex.def Info: Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/rd
 
 [22 <./Tutorial-Week-11-IV-RDD-Analysis_files/figure-latex/rd-local-random-1.pd
 f>]
-Overfull \hbox (131.52234pt too wide) in alignment at lines 1355--1363
+Overfull \hbox (131.52234pt too wide) in alignment at lines 1357--1365
  [] [] [] [] [] [] [] [] [] 
  []
 
@@ -929,7 +929,7 @@ texmf-dist/fonts/type1/public/lm/lmsy7.pfb></usr/local/texlive/2025/texmf-dist/
 fonts/type1/public/lm/lmtk10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type
 1/public/lm/lmtt10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/l
 m/lmtti10.pfb>
-Output written on Tutorial-Week-11-IV-RDD-Analysis.pdf (24 pages, 585917 bytes)
+Output written on Tutorial-Week-11-IV-RDD-Analysis.pdf (24 pages, 586010 bytes)
 .
 PDF statistics:
  420 PDF objects out of 1000 (max. 8388607)
