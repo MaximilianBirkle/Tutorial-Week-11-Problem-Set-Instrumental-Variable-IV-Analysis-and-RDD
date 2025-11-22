@@ -137,7 +137,7 @@ stargazer(fs_model, rf_model, iv_model,
 
 * $H_0$: Institutions have no causal effect on log GDP per Capita.
 
-Under this null hypothesis, the relationship between the instrument ($Z_I$) and the outcome ($Y_I$) is solely due to chance and should not change the observed 2SLS estimate.
+Under this null hypothesis, the relationship between the instrument ($Z_I$) and the outcome ($Y_I$) is solely due to chance and should not change the observed 2SLS estimate $H_0:\beta_2=0$.
 
 2. Conduct a **permutation test** for the IV coefficient:
     - Shuffle the endogenous variable (or fitted values) while holding other variables fixed.
@@ -150,16 +150,14 @@ Under this null hypothesis, the relationship between the instrument ($Z_I$) and 
     Discuss any differences and what they imply for small-sample IV inference.
     
 ```{r q2_permutation_test}
-
 # Permutation Test
-
 set.seed(123)
 n_perms <- 1000
 observed_coef <- coef(iv_model)["avexpr"]
 perm_coefs <- numeric(n_perms)
 
 for (i in 1:n_perms) {
-  # Shuffle the endogeneous variable
+  # Shuffle the endogenous variable
   ajr_perm <- ajr_data
   ajr_perm$avexpr <- sample(ajr_data$avexpr)
   # Re-estimate IV on shuffled data
@@ -167,16 +165,32 @@ for (i in 1:n_perms) {
   perm_coefs[i] <- coef(perm_model)["avexpr"]
 }
 
-# We can calculate the p-values based on those results (two-sided)
+# Calculate the p-values based on those results (two-sided)
 p_val_perm <- mean(abs(perm_coefs) >= abs(observed_coef))
+p_val_normal <- summary(iv_model)$coefficients["avexpr", "Pr(>|t|)"]
 
-# The results are the following:
-cat("Permutation Test Results:\n")
-cat("Observed Coefficient:", observed_coef, "\n")
-cat("Permutation p-value:", p_val_perm, "\n")
-cat("Normal approx p-value:", summary(iv_model)$coefficients["avexpr", "Pr(>|t|)"], "\n")
+# Create a summary table
+perm_results <- data.frame(
+  Statistic = c("Observed 2SLS Coefficient", 
+                "Permutation p-value", 
+                "Normal Approximation p-value",
+                "Number of Permutations"),
+  Value = c(sprintf("%.4f", observed_coef),
+            sprintf("%.4f", p_val_perm),
+            sprintf("%.4f", p_val_normal),
+            format(n_perms, big.mark = ",")),
+  check.names = FALSE
+)
+
+kable(perm_results,
+      booktabs = TRUE,
+      align = c("l", "r"),
+      caption = "Permutation Test Results for IV Coefficient") %>%
+  kable_styling(full_width = FALSE, position = "center")
 ```
 
+
+**Discussion**
 
 ### Q2(b). Bootstrap Confidence Intervals
 
