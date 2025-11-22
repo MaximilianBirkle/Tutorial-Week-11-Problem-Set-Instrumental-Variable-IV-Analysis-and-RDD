@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Setup and Package Loading
+# Setup, Package Loading & Data Loading
 
 ```{r load-packages}
 # Install packages if needed
@@ -46,7 +46,6 @@ for (pkg in packages) {
 }
 ```
 
-# Load Data
 
 ```{r load-data}
 # Load the AJR (2001) replication data
@@ -130,11 +129,11 @@ stargazer(fs_model, rf_model, iv_model,
 
 **Discussion:**
 
-The IV analysis reveals rather mixed results. Looking at the first stage (Column 1), we find that a one-unit increase in log settler mortality decreases institutional quality  by 0.035 points. While this is statistically significant, the first stage F-statistic 5.3 falls well below the threshold of 10, indicating a weak instrument problem. This indicates that settler mortality does not predict institutions strongly enough to reliably isolate exogenous variation.
+The IV analysis reveals rather mixed results. Looking at the first stage (Column 1), we find that a one-unit increase in log settler mortality decreases institutional quality  by -0.385 points. While this is statistically significant, the first stage F-statistic of 5.3 falls well below the threshold of 10, indicating a weak instrument problem. This indicates that settler mortality does not predict institutions strongly enough to reliably isolate exogenous variation.
 
 The reduced form (Column 2) shows that higher settler mortality is associated with lower GDP today (coefficient = -0.449, p < 0.001). This is the total effect of the instrument on the outcome, combining both the effect through institutions and any potential direct effects.
 
-The 2SLS estimate (Column 3) suggests that a one-point improvement in institutional quality increases log GDP by 1.167, implying institutions have a large positive effect on economic development. However, the results must be interpreted with caution given the weak first stage. The weak instrument means we cannot confidently conclude that institutions cause higher GDP and that the relationship found may be spurious, driven by small-sample bias rather than a true causal relationship.
+The 2SLS estimate (Column 3) suggests that a one-point improvement in institutional quality increases log GDP by 1.167, implying institutions have a large positive effect on economic development. However, this result must be interpreted with caution given the weak first stage. This weak instrument means we cannot confidently conclude that institutions cause higher GDP and that the relationship found may be spurious, driven by small-sample bias rather than a true causal relationship.
 
 ___
 
@@ -203,9 +202,9 @@ kable(perm_results,
 
 The comparison of the two estimates reveals a critical tension in the results. The point estimates for the 2SLS coefficient remain remarkably stable and virtually identical (1.167 vs. 1.1666). The primary concern arises instead from the large discrepancy between the $p$-values.
 
-The standard $p$-value ($0.0028$), which is based on asymptotic (large-sample) assumptions (i.e., a normal sampling distribution), indicates that the observed coefficient estimate is highly significant and unlikely to be due to chance alone. However, the permutation $p$-value ($0.9470$), generated from 1,000 random shuffles that simulate a world with no causal effect between institutions and GDP per capita, suggests the opposite. This high $p$-value indicates that approximately $94.7\%$ of the permuted coefficients are as large as or larger in absolute value than the observed coefficient. Therefore, under the null hypothesis of no relationship, we would very frequently observe coefficients as extreme as the one found.
+The standard $p$-value ($0.0028$), which is based on asymptotic (large-sample) assumptions (i.e., a normal sampling distribution), indicates that the observed coefficient estimate is highly significant and unlikely to be due to chance alone. However, the permutation $p$-value ($0.9470$), generated from 1,000 random shuffles that simulate a world with no causal effect between institutions and GDP per Capita, suggests the opposite. This high $p$-value indicates that approximately $94.7\%$ of the permuted coefficients are as large as or larger in absolute value than the observed coefficient. Therefore, under the null hypothesis of no relationship, we would very frequently observe coefficients as extreme as the one found.
 
-This finding has important implications, as the weak instrument problem combined with small sample size means that the 2SLS estimator falsely suggest strong evidence for a causal effect when, the data are consistent with no effect at all. This casts serious doubt on core empirical claim driven by the combination of a small sample size and a weak first-stage instrument ($F=5.3$). 
+This finding has important implications, as the weak instrument problem combined with small sample size means that the 2SLS estimator falsely suggests strong evidence for a causal effect when, the data are consistent with no effect at all. This casts serious doubt on core empirical claim driven by the combination of a small sample size and a weak first-stage instrument ($F=5.3$). 
 
 ___
 
@@ -314,7 +313,7 @@ kable(boot_stats,
 
 **Discusion**
 
-Looking at the results, we can see that the Normal Approximation (CI: [-13.56, 15.89]), as well as the Efron Percentile (CI: [-1.14, 4.88]) includes zero, suggesting that we cannot rule out the posibility of no causal effect. However, the Bias-Corrected CI excludes zero, suggesting that there may be a positive effect of iinstitutions on GDP. 
+Looking at the results, we can see that the Normal Approximation (CI: [-13.56, 15.89]), as well as the Efron Percentile (CI: [-1.14, 4.88]) includes zero, suggesting that we cannot rule out the possibility of no causal effect. However, the Bias-Corrected CI excludes zero, suggesting that there may be a positive effect of institutions on GDP. 
 
 The Normal Approximation CI is significantly wider (Width = 29.45), than Efron Percentile (Width = 6.02) and Bias-Corrected (BC) (Width = 5.90). 
 
@@ -330,12 +329,12 @@ While the Bias-Corrected CI excludes zero [0.64, 6.54], therefore might suggest 
 
 The permutation test tests the null hypothesis that institutions have no causal effect on GDP. To do that, it randomly shuffles the institutions variable across our 64 countries, abolishing any true relationship between institutions, while keeping everything else the same. The IV regression is then run again on the new composition of the data to estimate what coefficients result, if there is no effect. 
 
-The bootstrap assumes the relationship to be real and asks how much it varies due to sampling randomness. For that, the all observations (countries) are resampled with replacement, creating 1,000 "fake" datasets that mimic drawing different samples from the same population (the 64 countries), where each resample preserves the actual relationships between mortality, institutions, and GDP. By re-estimating the IV model, on each resample, the resilting distribution shows where the true coefficient might fall, providing CIs to get a better grasp of estimation uncertainty. Although, this does not tell us whether the effect truly exists.
+The bootstrap assumes the relationship to be real and asks how much it varies due to sampling randomness. For that, the all observations (countries) are resampled with replacement, creating 1,000 "fake" datasets that mimic drawing different samples from the same population (the 64 countries), where each resample preserves the actual relationships between mortality, institutions, and GDP. By re-estimating the IV model, on each resample, the resulting distribution shows where the true coefficient might fall, providing CIs to get a better grasp of estimation uncertainty. Although, this does not tell us whether the effect truly exists.
 
 
 **What is held fixed? What is resampled?**
 
-The permutation only shuffles the institutions (breaking the Z→T→Y chain), while everything else stays fixed. The bootstrap resamples entire rows with replacement, preserving individual relationships.
+The permutation test only shuffles the institutions (breaking the Z→T→Y chain), while everything else stays fixed. The bootstrap resamples entire observations (rows) with replacement, preserving individual relationships.
 
 
 **Why do they answer conceptually different questions?**
@@ -344,7 +343,7 @@ The Permutation Test asks: "Is there actually an effect?", while the bootstrap a
 
 The permutation test shows we cannot reject the null hypothesis, as there is no evidence from our data that institutions affect GDP. It directly tests whether there is an effect.
 
-The bootstrap assumes that there is an effect and tries to measure it. The reults show wide CIs, extreme skewness and large standard error reflecting instability in the estimator.
+The bootstrap assumes that there is an effect and tries to measure it. The results show wide CIs, extreme skewness and a large standard error reflecting instability in the estimator.
 
 In summary, the permutation test gives more reliable inference, as it tests if there is an effect at all, while the bootstrap's conflicting results show we can't reliably estimate the relationship even if we assume one exists.
 
@@ -355,9 +354,9 @@ In summary, the permutation test gives more reliable inference, as it tests if t
 
 ### Q3.1 Explain why settler mortality must be causally prior to institutions in AJR’s theory.
 
-Settler mortality must come before institutions in AJR's theory because the IV identification strategy requires a strict causal ordering. The instrument (settler mortality) can only affect the outcome (GDP) through its effect on institutions, not through any other channel. This is also established by the review of historical literature providing strong evidence for this approach. When European Colonizers arrived in the 17th-19th centuries, they encountered different disease environments with varying mortality rates. High mortality rates from diseases like yellow fever or malaria in places like West Africa made settlement impossible, leading colonizers to only establish extractive institutions focused on resource extraction. Low mortality rates in North America and Australia enabled mass settlement, and these settlers established strong property rights and rule of law.
+Settler mortality must come before institutions in AJR's theory because the IV identification strategy requires a strict causal ordering. The instrument (settler mortality) can only affect the outcome (GDP) through its effect on institutions, not through any other channel. Historical evidence strongly supports this causal sequence. When European Colonizers arrived in the 17th-19th centuries, they encountered different disease environments with varying mortality rates. High mortality rates from diseases like yellow fever or malaria in places like West Africa made settlement impossible, leading colonizers to only establish extractive institutions focused on resource extraction. Low mortality rates in North America and Australia enabled mass settlement, and these settlers established strong property rights and rule of law.
 
-The key takeaway from that reasoning is that colonizers made these institutional choices based on the initial disease environment, so before any institutions could exist. If institutions could affect mortality rates retroactively, then mortality rates would be endogenous, violating the IV assumption. As this is extremely unlikely, the temporal ordering ensures settler mortality was an exogenous shock determined purely by pre-existing epidemiological conditions, which influenced institutional development but could not itself be influenced by those institutions. This one-way causal path is what follows AJR to claim they have isolated the causal effect of institutions on development.
+The key takeaway from that reasoning is that colonizers made these institutional choices based on the initial disease environment, so before any institutions could exist. If institutions could affect mortality rates retroactively, then mortality rates would be endogenous, violating the IV assumption. As this is extremely unlikely, the temporal ordering ensures settler mortality was an exogenous shock determined purely by pre-existing epidemiological conditions, which influenced institutional development but could not itself be influenced by those institutions. This one-way causal path is what allows AJR to claim they have isolated the causal effect of institutions on development.
 
 ___
 
