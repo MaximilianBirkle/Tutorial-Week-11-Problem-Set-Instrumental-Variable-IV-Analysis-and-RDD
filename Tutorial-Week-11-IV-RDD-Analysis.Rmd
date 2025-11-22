@@ -220,36 +220,46 @@ Using bootstrap resampling of observations:
 ```{r q2_b_bootstrap_confidence_intervals}
 # Q2(b). Bootstrap Confidence Intervals
 set.seed(456)
-n_boot <- 1000
+n_boot <- 1000 # number of bootstrap replications
 
 # Function to compute 2SLS coefficient from bootstrap sample
+# Resampling with replaement
 boot_2sls <- function(data, indices) {
   boot_data <- data[indices, ]
-  boot_model <- ivreg(iv_formula, data = boot_data)
+  boot_model <- ivreg(iv_formula, data = boot_data) # Run the 2SLS regression on resanpled data
   return(coef(boot_model)["avexpr"])
 }
 
-# Run bootstrap
+# Run bootstrap 1,000 times 
 boot_results <- boot(data = ajr_data, 
                      statistic = boot_2sls, 
                      R = n_boot)
 
-# Extract bootstrap coefficients
+# Storing all bootstrap coefficients
 boot_coefs <- boot_results$t
 
 # Calculate confidence intervals
 
-# 1. Efron Percentile CI
+# 1. Efron Percentile CI (assumes bootstrap distribution represents sampling distribution)
 ci_percentile <- quantile(boot_coefs, probs = c(0.025, 0.975))
+# Finds the 2.5th and 97.5th percentile that servrs as 95% CI
+
 
 # 2. Bias-Corrected (BC) CI
-z0 <- qnorm(mean(boot_coefs < observed_coef))
+# asdjusts percentile CI e.g. if bootstrap distribution is far from original estimate
+
+# calculate bias correction factor => how many bootsrap coefficients are below observed coefficient
+# if = 0.5 no correction is needed
+z0 <- qnorm(mean(boot_coefs < observed_coef)) 
 alpha <- c(0.025, 0.975)
 z_alpha <- qnorm(alpha)
 bc_probs <- pnorm(2 * z0 + z_alpha)
+# Use the corrected percentile points to define final BC CI
 ci_bc <- quantile(boot_coefs, probs = bc_probs)
 
+
 # 3. Normal approximation CI (for comparison)
+# Bootstrap's SE and build CI (= coefficient +/- 1.96 * Bootstrap SE)
 boot_se <- sd(boot_coefs)
 ci_normal <- observed_coef + c(-1, 1) * qnorm(0.975) * boot_se
 
@@ -321,7 +331,7 @@ Key points to address:
 - If institutions could affect mortality rates retroactively, the IV assumption fails
 - The exclusion restriction requires mortality affects GDP ONLY through institutions
 
-
+___
 
 ### Q3.2 Timing Problems
 
