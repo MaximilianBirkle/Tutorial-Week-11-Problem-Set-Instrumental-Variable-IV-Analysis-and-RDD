@@ -318,11 +318,32 @@ While the Bias-Corrected CI excludes zero [0.64, 6.54], therefore might suggest 
 
 ### Q2(c). Conceptual: Permutation vs Bootstrap
 
-Explain—precisely—what the **permutation test** and the **bootstrap** each measure.
+**Explain—precisely—what the permutation test and the bootstrap each measure.** 
 
-What is held fixed? What is resampled?
+The permutation test tests the null hypothesis that institutions have no causal effect on GDP. To do that, it randomly shuffles the institutions variable across our 64 countries, abolishing any true relationship between institutions, while keeping everything else the same. The IV regression is then run again on the new composition of the data to estimate what coefficients result, if there is no effect. 
 
-Why do they answer conceptually different questions?
+The bootstrap assumes the relationship to be real and asks how much it varies due to sampling randomness. For that, the all observations (countries) are resampled with replacement, creating 1,000 "fake" datasets that mimic drawing different samples from the same population (the 64 countries), where each resample preserves the actual relationships between mortality, institutions, and GDP. By re-estimating the IV model, on each resample, the resilting distribution shows where the true coefficient might fall, providing CIs to get a better grasp of estimation uncertainty. Although, this does not tell us whether the effect truly exists.
+
+
+**What is held fixed? What is resampled?**
+
+The permutation only shuffles the institutions (breaking the Z→T→Y chain), while everything else stays fixed. The bootstrap resamples entire rows with replacement, preserving individual relationships.
+
+
+**Why do they answer conceptually different questions?**
+
+The Permutation Test asks: "Is there actually an effect?", while the bootstrap asks: "If there is an effect, how uncertain are we about its size?".
+
+The permutation test shows we cannot reject the null hypothesis, as there is no evidence from our data that institutions affect GDP. It directly tests whether there is an effect.
+
+The bootstrap assumes that there is an effect and tries to measure it. The reults show wide CIs, extreme skewness and large standard error reflecting instability in the estimator.
+
+In summary, the permutation test gives more reliable inference, as it tests if there is an effect at all, while the bootstrap's conflicting results show we can't reliably estimate the relationship even if we assume one exists.
+
+
+
+
+---
 
 ## Q3. Instrument Validity and Timing (10 pts)
 
