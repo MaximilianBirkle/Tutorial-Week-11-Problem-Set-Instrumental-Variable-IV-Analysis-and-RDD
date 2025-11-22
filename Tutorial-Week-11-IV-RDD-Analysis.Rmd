@@ -349,68 +349,33 @@ The bootstrap assumes that there is an effect and tries to measure it. The reult
 In summary, the permutation test gives more reliable inference, as it tests if there is an effect at all, while the bootstrap's conflicting results show we can't reliably estimate the relationship even if we assume one exists.
 
 
-
-
 ---
 
 ## Q3. Instrument Validity and Timing (10 pts)
 
-### Q3.1 Causal Priority in AJR's Theory
+### Q3.1 Explain why settler mortality must be causally prior to institutions in AJR’s theory.
 
-**Why settler mortality must be causally prior to institutions:**
+Settler mortality must come before institutions in AJR's theory because the IV identification strategy requires a strict causal ordering. The instrument (settler mortality) can only affect the outcome (GDP) through its effect on institutions, not through any other channel. This is also established by the review of historical literature providing strong evidence for this approach. When European Colonizers arrived in the 17th-19th centuries, they encountered different disease environments with varying mortality rates. High mortality rates from diseases like yellow fever or malaria in places like West Africa made settlement impossible, leading colonizers to only establish extractive institutions focused on resource extraction. Low mortality rates in North America and Australia enabled mass settlement, and these settlers established strong property rights and rule of law.
 
-[Write your answer here]
-
-Key points to address:
-
-- The logic of instrumental variables requires that $Z \rightarrow T \rightarrow Y$ (no reverse causation)
-- In AJR's theory, high settler mortality $\rightarrow$ extractive institutions $\rightarrow$ lower growth
-- If institutions could affect mortality rates retroactively, the IV assumption fails
-- The exclusion restriction requires mortality affects GDP ONLY through institutions
+The key takeaway from that reasoning is that colonizers made these institutional choices based on the initial disease environment, so before any institutions could exist. If institutions could affect mortality rates retroactively, then mortality rates would be endogenous, violating the IV assumption. As this is extremely unlikely, the temporal ordering ensures settler mortality was an exogenous shock determined purely by pre-existing epidemiological conditions, which influenced institutional development but could not itself be influenced by those institutions. This one-way causal path is what follows AJR to claim they have isolated the causal effect of institutions on development.
 
 ___
 
-### Q3.2 Timing Problems
+### Q3.2 Why does the timing of the settler mortality measurements (often recorded long after colonization) create problems for:
+    
+1. **Relevance**
 
-**Issues with timing of settler mortality measurements:**
+2. **Exclusion restriction**
 
-[Write your answer here]
+3. **Independence**
 
-Address each IV assumption:
+--- 
 
-**Relevance (First-stage):**
+### Q3.3 Assessment of AJR Results: Do you find the AJR results convincing? Answer with reference to the IV assumptions and the estimated strength of the first stage.
 
-- Why does measurement timing affect the strength of the first stage?
-- Consider data availability and measurement error
 
-**Exclusion Restriction:**
+___ 
 
-- If mortality was measured long after colonization, what other channels might exist?
-- Could later mortality reflect economic conditions rather than cause them?
-
-**Independence:**
-
-- Are there confounders that affect both late-measured mortality and outcomes?
-- Geographic or climatic factors?
-
-### Q3.3 Assessment of AJR Results
-
-Based on your analysis:
-
-```{r ajr-assessment}
-
-```
-
-**Your assessment:**
-
-[Write your answer here]
-
-Consider:
-
-- Is the first stage strong enough?
-- Are the IV assumptions plausible given the timing issues?
-- What are the main threats to validity?
-- Would you believe the causal interpretation?
 
 ## Q4. Albouy's Critique of AJR (10 pts)
 
@@ -481,7 +446,11 @@ After Albouy reconstructs and corrects the mortality data:
 - The plausibility of IV assumptions
 - The sensitivity of findings to data corrections]
 
+___
+
 # Problem 2: Regression Discontinuity Design
+
+Note: Due to the fact that the authors provided their replication code on their github, we used that for the analysis below.
 
 ## Part A - Data Loading and Setup
 
@@ -511,6 +480,8 @@ cat("Observations:", nrow(data), "\n")
 cat("Running variable (X): Incumbent Party's Margin of Victory\n")
 cat("Outcome variable (Y): Incumbent Party Victory at t+1\n")
 ```
+
+___
 
 ## Part B - Falsification Analysis
 
@@ -597,6 +568,8 @@ kable(balance_table,
 
 Covariate balance tests check whether pre-treatment characteristics are continuous at the threshold. If covariates jump discontinuously at the cutoff, this suggests the treatment is not "as-if" randomly assigned, which would undermine the validity of the RD design.
 
+___
+
 ## Part C - Outcome Analysis
 
 ### RD Plot
@@ -654,6 +627,8 @@ print(summary(rdrcovs))
 The RDD estimates show the causal effect of barely winning an election (vs. barely losing) on the probability of the incumbent party winning the next election. This tests the "incumbency curse" hypothesis - that winning may actually hurt a party's chances in the next election due to weak parties and term limits in Brazilian municipalities.
 
 Compare the estimates with and without covariates. If they are similar, this provides additional evidence that the RD design is valid (covariates should not matter much if treatment is as-if random near the threshold).
+
+___
 
 ## Part D - Local Randomization Approach
 
