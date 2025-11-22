@@ -306,6 +306,14 @@ kable(boot_stats,
 
 **Discusion**
 
+Looking at the results, we can see that the Normal Approximation (CI: [-13.56, 15.89]), as well as the Efron Percentile (CI: [-1.14, 4.88]) includes zero, suggesting that we cannot rule out the posibility of no causal effect. However, the Bias-Corrected CI excludes zero, suggesting that there may be a positive effect of iinstitutions on GDP. 
+
+The Normal Approximation CI is significantly wider (Width = 29.45), than Efron Percentile (Width = 6.02) and Bias-Corrected (BC) (Width = 5.90). 
+
+The wide differences indicate that we should have serious concerns with the IV estimation. The bootstrap distribution appears to be heavily non-normal (skewness = -17.33), meaning the coefficient values are heavily skewed toward large negative numbers. This explains why the Normal Approximation CI is so much wider than the percentile based CIs. It assumes a symmetric, bell-shaped distribution when the actual distribution has a long left tail. This may result from the weak instrument problem (F = 5.3), since for a weak first stage, the 2SLS estimator becomes unstable in small samples, producing unreliable estimates that vary across bootstrap replications. This is further confirmed by the bootstrap SE (7.51). 
+
+While the Bias-Corrected CI excludes zero [0.64, 6.54], therefore might suggest that there is a causal effect, this conflicts with the results from our permutatuion test that showed no statistical significance. The bootstrap's wide intervals and skewness show that the we cannot reliably reject the null hypothesis, as the data don't provide enough information.
+
 --- 
 
 ### Q2(c). Conceptual: Permutation vs Bootstrap
