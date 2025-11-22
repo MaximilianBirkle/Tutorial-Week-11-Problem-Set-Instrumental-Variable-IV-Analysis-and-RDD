@@ -137,7 +137,7 @@ stargazer(fs_model, rf_model, iv_model,
 
 * $H_0$: Institutions have no causal effect on log GDP per Capita.
 
-Under this null hypothesis, the relationship between the instrument ($Z_I$) and the outcome ($Y_I$) is solely due to chance and should not change the observed 2SLS estimate $H_0:\beta_2=0$.
+The null hypothesis, $H_{0}$ states  that the degree of protection against expropriation risk (the institution measure) has no causal influence ($\beta_{2}=0$) on a country's long-run economic outcome (log GDP per capita).
 
 2. Conduct a **permutation test** for the IV coefficient:
     - Shuffle the endogenous variable (or fitted values) while holding other variables fixed.
@@ -149,7 +149,7 @@ Under this null hypothesis, the relationship between the instrument ($Z_I$) and 
     
     Discuss any differences and what they imply for small-sample IV inference.
     
-```{r q2_permutation_test}
+```{r q2_a_permutation_test}
 # Permutation Test
 set.seed(123)
 n_perms <- 1000
@@ -173,7 +173,7 @@ p_val_normal <- summary(iv_model)$coefficients["avexpr", "Pr(>|t|)"]
 perm_results <- data.frame(
   Statistic = c("Observed 2SLS Coefficient", 
                 "Permutation p-value", 
-                "Normal Approximation p-value",
+                "Standard p-value",
                 "Number of Permutations"),
   Value = c(sprintf("%.4f", observed_coef),
             sprintf("%.4f", p_val_perm),
@@ -192,6 +192,15 @@ kable(perm_results,
 
 **Discussion**
 
+The comparison of the two estimates reveals a critical tension in the results. The point estimates for the 2SLS coefficient remain remarkably stable and virtually identical (1.167 vs. 1.1666). The primary concern arises instead from the large discrepancy between the $p$-values.
+
+The standard $p$-value ($0.0028$), which is based on asymptotic (large-sample) assumptions (i.e., a normal sampling distribution), indicates that the observed coefficient estimate is highly significant and unlikely to be due to chance alone. However, the permutation $p$-value ($0.9470$), generated from 1,000 random shuffles that simulate a world with no causal effect between institutions and GDP per capita, suggests the opposite. This high $p$-value indicates that approximately $94.7\%$ of the permuted coefficients are as large as or larger in absolute value than the observed coefficient. Therefore, under the null hypothesis of no relationship, we would very frequently observe coefficients as extreme as the one found.
+
+This finding has important implications, as the weak instrument problem combined with small sample size means that the 2SLS estimator falsely suggest strong evidence for a causal effect when, the data are consistent with no effect at all. This casts serious doubt on core empirical claim driven by the combination of a small sample size and a weak first-stage instrument ($F=5.3$). 
+
+___
+
+
 ### Q2(b). Bootstrap Confidence Intervals
 
 Using bootstrap resampling of observations:
@@ -206,6 +215,88 @@ Using bootstrap resampling of observations:
     - Do they include zero?
     - Are they wider or narrower?
     - What does this imply about the sampling distribution?
+
+
+```{r q2_b_bootstrap_confidence_intervals}
+# Q2(b). Bootstrap Confidence Intervals
+set.seed(456)
+n_boot <- 1000
+
+# Function to compute 2SLS coefficient from bootstrap sample
+boot_2sls <- function(data, indices) {
+  boot_data <- data[indices, ]
+  boot_model <- ivreg(iv_formula, data = boot_data)
+  return(coef(boot_model)["avexpr"])
+}
+
+# Run bootstrap
+boot_results <- boot(data = ajr_data, 
+                     statistic = boot_2sls, 
+                     R = n_boot)
+
+# Extract bootstrap coefficients
+boot_coefs <- boot_results$t
+
+# Calculate confidence intervals
+
+# 1. Efron Percentile CI
+ci_percentile <- quantile(boot_coefs, probs = c(0.025, 0.975))
+
+# 2. Bias-Corrected (BC) CI
+z0 <- qnorm(mean(boot_coefs < observed_coef))
+alpha <- c(0.025, 0.975)
+z_alpha <- qnorm(alpha)
+bc_probs <- pnorm(2 * z0 + z_alpha)
+ci_bc <- quantile(boot_coefs, probs = bc_probs)
+
+# 3. Normal approximation CI (for comparison)
+boot_se <- sd(boot_coefs)
+ci_normal <- observed_coef + c(-1, 1) * qnorm(0.975) * boot_se
+
+# Create summary table
+ci_comparison <- data.frame(
+  Method = c("Normal Approximation", "Efron Percentile", "Bias-Corrected (BC)"),
+  Lower_Bound = sprintf("%.4f", c(ci_normal[1], ci_percentile[1], ci_bc[1])),
+  Upper_Bound = sprintf("%.4f", c(ci_normal[2], ci_percentile[2], ci_bc[2])),
+  CI_Width = sprintf("%.4f", c(diff(ci_normal), diff(ci_percentile), diff(ci_bc))),
+  Includes_Zero = c(ci_normal[1] <= 0 & ci_normal[2] >= 0,
+                    ci_percentile[1] <= 0 & ci_percentile[2] >= 0,
+                    ci_bc[1] <= 0 & ci_bc[2] >= 0)
+)
+
+kable(ci_comparison,
+      booktabs = TRUE,
+      align = c("l", "r", "r", "r", "c"),
+      col.names = c("Method", "Lower Bound", "Upper Bound", "CI Width", "Includes Zero"),
+      caption = "Bootstrap 95\\% Confidence Intervals for IV Coefficient") %>%
+  kable_styling(full_width = FALSE, position = "center")
+
+# Additional statistics table
+boot_stats <- data.frame(
+  Statistic = c("Observed 2SLS Coefficient",
+                "Bootstrap Mean",
+                "Bootstrap Bias",
+                "Bootstrap SE",
+                "Bootstrap Skewness",
+                "Number of Bootstrap Replications"),
+  Value = c(sprintf("%.4f", observed_coef),
+            sprintf("%.4f", mean(boot_coefs)),
+            sprintf("%.4f", mean(boot_coefs) - observed_coef),
+            sprintf("%.4f", boot_se),
+            sprintf("%.4f", mean(((boot_coefs - mean(boot_coefs)) / sd(boot_coefs))^3)),
+            format(n_boot, big.mark = ","))
+)
+
+kable(boot_stats,
+      booktabs = TRUE,
+      align = c("l", "r"),
+      caption = "Bootstrap Summary Statistics") %>%
+  kable_styling(full_width = FALSE, position = "center")
+```
+
+**Discusion**
+
+--- 
 
 ### Q2(c). Conceptual: Permutation vs Bootstrap
 
