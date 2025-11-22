@@ -128,6 +128,14 @@ stargazer(fs_model, rf_model, iv_model,
           add.lines = list(c("First-Stage F-stat", round(f_stat, 2), "-", "-")))
 ```
 
+**Discussion:**
+
+The IV analysis reveals rather mixed results. Looking at the first stage (Column 1), we find that a one-unit increase in log settler mortality decreases institutional quality  by 0.035 points. While this is statistically significant, the first stage F-statistic 5.3 falls well below the threshold of 10, indicating a weak instrument problem. This indicates that settler mortality does not predict institutions strongly enough to reliably isolate exogenous variation.
+
+The reduced form (Column 2) shows that higher settler mortality is associated with lower GDP today (coefficient = -0.449, p < 0.001). This is the total effect of the instrument on the outcome, combining both the effect through institutions and any potential direct effects.
+
+The 2SLS estimate (Column 3) suggests that a one-point improvement in institutional quality increases log GDP by 1.167, implying institutions have a large positive effect on economic development. However, the results must be interpreted with caution given the weak first stage. The weak instrument means we cannot confidently conclude that institutions cause higher GDP and that the relationship found may be spurious, driven by small-sample bias rather than a true causal relationship.
+
 ___
 
 ## Q2. Randomization and Resampling (10 pts)
