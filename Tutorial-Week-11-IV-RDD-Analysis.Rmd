@@ -364,15 +364,21 @@ ___
     
 1. **Relevance**
 
+Because the mortality data were recorded long after colonization, they may not reflect the disease environment that actually shaped institutional choices at the time. What we need is “mortality at first settlement”; what we have is mortality measured decades later, after medicine, colonial presence, and population structures had already changed. This mismatch introduces noise and can easily weaken the predictive link between mortality and institutions, which is consistent with our weak first stage.
+
 2. **Exclusion restriction**
 
+Late-recorded mortality may also capture post-colonial factors (like health investments, military activity, trade intensity) that directly influence modern GDP. If the measured mortality reflects these later developments, then it can affect GDP through channels other than institutions. In that case the exclusion restriction fails, since mortality would no longer influence income only through the institutional path.
+
 3. **Independence**
+
+If mortality is recorded long after settlement, it may pick up omitted variables that independently influence long-run development. For example, a region on a major trade route might receive better colonial medical infrastructure, reducing late-recorded mortality, while the same trade route also boosts modern GDP. That would make mortality correlated with unobservables that matter for income, violating independence. In short, the timing opens the door for mortality to become endogenous.
 
 --- 
 
 ### Q3.3 Assessment of AJR Results: Do you find the AJR results convincing? Answer with reference to the IV assumptions and the estimated strength of the first stage.
 
-
+Based on our IV analysis, the AJR results are not particularly convincing. The most immediate problem is the weak first stage, although settler mortality enters significantly, the first-stage F-statistic of around 5.3 is far below the usual threshold of 10, indicating that the instrument explains very little of the variation in institutional quality. This weak link makes the 2SLS estimates highly unstable, which is exactly what we observe in the permutation and bootstrap exercises. Both show extreme variability and results that are fully consistent with the null hypothesis of no causal effect. Beyond relevance, the exclusion restriction also appears fragile, because mortality was measured long after initial colonization, the recorded values likely incorporate post-colonial factors such as health interventions, military activity, or trade dynamics that directly influence long-run development, meaning mortality could affect GDP through channels other than institutions. Independence is questionable for similar reasons, since late-recorded mortality may reflect omitted geographic or historical characteristics that also matter for modern income, making the instrument plausibly endogenous. While the 2SLS point estimate is large and positive, our small-sample inference strongly suggests that this estimate cannot be interpreted as credible causal evidence. Taken together, the weak first stage, the timing issues surrounding the mortality data, and the poor performance of the instrument in our robustness checks imply that the AJR identification strategy does not provide strong statistical support for their causal claim about institutions and development.
 ___ 
 
 
