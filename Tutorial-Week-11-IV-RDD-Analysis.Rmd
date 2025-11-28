@@ -394,23 +394,20 @@ Perhaps even more concerning is that a majority of the dataset does not actually
 
 ### Q4(b). Violations of IV Assumptions
 
-**Relevance:**
+**Relevance** ($Cov(Z, T) \neq 0$)
 
-Albouy's argument:
+Albouy argues that the strong relationship AJR found is largely an illusion caused by data errors. When he cleans up the dataset —by removing the made-up conjectured rates and stripping out the mismatched campaign data — the statistical link between mortality and institutions effectively evaporates. The instrument stops being a reliable predictor and becomes a weak instrument, meaning it no longer has enough power to explain why some countries have better institutions than others.
 
-[Your answer]
 
-**Independence:**
+**Independence** ($Z \perp \epsilon$)
 
-Albouy's argument:
+Albouy finds that the measurement error in the AJR data wasn't just random noise; instead it was systematic. He discovered a suspicious pattern where AJR were significantly more likely to use the inflated campaign mortality rates (from soldiers at war) for countries that are currently poor and have weak institutions. This implies the data selection process itself was biased/endogenous: the severity of the mortality rate was partly determined by the country's current economic status, creating a spurious correlation that violates independence.
 
-[Your answer]
 
-**Exclusion Restriction:**
+**Exclusion Restriction** ($Z \rightarrow Y$ only through $T$)
 
-Albouy's argument:
+Albouy argues that by relying on campaign rates, the instrument isn't just measuring germs — it is measuring the intensity of 19th-century warfare. Wars destroy infrastructure and human capital directly, which hurts GDP through channels having nothing to do with property rights institutions. Furthermore, Albouy notes that the results depend almost entirely on the "Neo-Europes" (US, Canada, New Zealand). If the instrument is just a proxy for being a Neo-Europe, it is likely capturing all the other advantages European settlers brought with them —like education, technology, and culture —rather than just their legal institutions, thereby breaking the exclusion restriction.
 
-[Your answer]
 
 ### Q4(c). Sensitivity and Data Corrections
 
