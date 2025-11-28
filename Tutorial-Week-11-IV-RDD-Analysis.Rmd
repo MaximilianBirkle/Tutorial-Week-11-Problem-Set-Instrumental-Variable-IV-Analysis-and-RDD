@@ -430,21 +430,21 @@ These findings reveal that the AJR results are exceptionally fragile and depende
 ### Q4(d). Interpretation
 
 **Do you believe the AJR conclusions still hold?**
-
-[Your answer]
+Empirically, no. While the theoretical narrative —that good institutions are the secret sauce of economic growth — is compelling and historically plausible, the statistical proof provided by AJR collapses under pressure. The settler mortality instrument turns out to be a statistical mirage; once we strip away the conjectured data points and correct the historical mismatch between soldiers at war and soldiers at peace, the data simply cannot support the weight of the causal claim.
 
 **Or do the methodological issues undermine the core causal claim?**
-
-[Your answer]
+Yes, the methodological flaws sever the causal link entirely. In an IV analysis, the instrument is the foundation of the house; if it cracks, everything built on top of it falls. Albouy demonstrated that the strong instrument in AJR was largely an artifact of how the data was assembled — specifically, by mixing incomparable sources and making guesses for over half the sample. Without those specific data choices, the instrument becomes too weak to identify causality, leaving us with a correlation that could easily be driven by geography or other omitted variables rather than institutions
 
 **Justification:**
+We base this conclusion on four specific failures that emerged from the critique and our own analysis:
 
-[Provide clear reasoning based on:
+1. The Instrument Was "Manufactured" by Bias: Albouy reveals that the correlation didn't come from a clean historical experiment, but from cherry-picking data sources. AJR systematically used high mortality rates from soldiers fighting wars ("campaigns") for poor countries, and low mortality rates from soldiers in peace ("barracks") for rich countries. Furthermore, for 36 out of 64 countries, the data wasn't real — it was assigned from neighbors based on the authors' assumptions. When Albouy replaces these guesses with actual data, the strong predictive power of the instrument vanishes
 
-- The strength of Albouy's critique
-- Your replication results
-- The plausibility of IV assumptions
-- The sensitivity of findings to data corrections]
+2. Our Replication Proved the Weakness: We saw the consequences of this fragility in our own R analysis. Even using the original AJR dataset, the moment we added standard controls, our First-Stage F-statistic plummeted to 5.3 — nearly half the required threshold of 10. In econometrics, this is a red alert: it means the instrument is "weak, rendering our 2SLS estimates unreliable and likely biased. Our permutation test confirmed this, showing that our significant result was statistically indistinguishable from random noise (p-value $\approx$ 0.95).
+
+3. The "Germs vs. Guns" Problem (Exclusion Restriction): The critique undermines the idea that mortality influenced GDP only through institutions. Since the data relies heavily on campaign rates, the instrument is essentially proxying for the intensity of 19th-century warfare. War destroys infrastructure and human capital directly, hurting GDP through channels that have nothing to do with property rights. This violation of the exclusion restriction makes the causal estimates invalid.
+
+4. Fragility to "Neo-Europes": Finally, a universal economic law shouldn't depend on just four countries. Albouy shows that if you simply remove the Neo-Europes (US, Canada, Australia, NZ) — which had unique advantages in culture and technology—the relationship between mortality and institutions disappears entirely. This suggests the AJR result isn't capturing a global institutional effect, but rather the specific, unique history of those four settler colonies.
 
 ___
 
