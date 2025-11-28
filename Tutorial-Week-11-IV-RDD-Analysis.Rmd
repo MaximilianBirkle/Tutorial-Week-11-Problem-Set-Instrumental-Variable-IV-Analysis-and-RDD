@@ -388,13 +388,9 @@ ___
 
 **Key measurement issues raised by Albouy (2012):**
 
-1. [Issue 1]:
+One of the most damaging critiques is that AJR effectively make an "apples-to-oranges" comparison by mixing different types of mortality data. Albouy points out that they combine death rates from soldiers living in peaceful barracks with those on active military campaigns. This distinction is critical because historical evidence shows that soldiers on campaign faced drastically higher mortality—often between 66% and 2000% higher—caused by grueling travel, contaminated water, and exposure, rather than simply the local disease environment. Albouy discovers that AJR were more likely to use these inflated "campaign" rates for countries that are poor and have weak institutions today, while using the lower "barracks" rates for wealthier nations3. Consequently, the instrument ($Z$) appears to predict modern outcomes not because of a true historical causal link, but because the data was assembled in a way that artificially creates a correlation between high mortality and poor economic performance.
 
-2. [Issue 2]:
-
-**Why they matter for IV validity:**
-
-[Your answer]
+Perhaps even more concerning is that a majority of the dataset does not actually originate from the countries being analyzed. Albouy notes that for 36 of the 64 countries, AJR did not use local historical records; instead, they simply assigned mortality rates from neighboring countries based on their own assumptions about which nations shared similar disease environments. This methodology leads to significant errors, such as taking a mortality rate from a specific yellow fever epidemic in Mali and applying it to Angola and Uganda—countries thousands of kilometers away with vastly different climates and disease ecologies. In simple terms, this means the instrument ($Z$) is largely capturing the authors' best guesses rather than hard historical facts. Once Albouy strips away these conjectures or corrects the data, the strong variation in the instrument falls apart, and the link between settler mortality ($Z$) and institutions ($T$) essentially disappears.
 
 ### Q4(b). Violations of IV Assumptions
 
