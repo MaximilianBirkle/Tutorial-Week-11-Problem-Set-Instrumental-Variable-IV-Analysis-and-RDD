@@ -411,19 +411,21 @@ Albouy argues that by relying on campaign rates, the instrument isn't just measu
 
 ### Q4(c). Sensitivity and Data Corrections
 
-After Albouy reconstructs and corrects the mortality data:
+When Albouy reconstructs the dataset by removing the "conjectured" mortality rates (those assigned from neighboring countries) and correcting the erroneous data points (like the Mali outlier), the results change as follows:
 
 **Effects on:**
 
-1. **First stage:** [Your answer - what happens to F-statistic and coefficient?]
+1. **First stage:** 
+The relationship between settler mortality ($Z$) and institutions ($T$) collapses. When the conjectured rates are dropped and the Mali rate is corrected, the estimated coefficient for mortality ($\beta$) falls and becomes statistically insignificant, often indistinguishable from zero. This indicates that the instrument loses its predictive power once the measurement errors are addressed, leading to a failure of the relevance assumption.
 
-2. **Reduced form:** [Your answer - does the relationship weaken?]
+2. **Reduced form:** 
+The direct relationship between settler mortality and economic performance ($Y$) weakens substantially. Albouy notes that if the conjectured data are removed and controls for the data source (campaign vs. laborers) are added, the empirical relationship between mortality and the variables of interest virtually disappears.
 
-3. **2SLS estimates:** [Your answer - how do the causal estimates change?]
+3. **2SLS estimates:** 
+Due to the weak first stage, the 2SLS point estimates become highly unstable and unreliable. The estimated coefficients often take on implausibly large values (e.g., implying massive GDP differences from small institutional changes) or even flip to being negative. Furthermore, the correct confidence regions (using the Anderson-Rubin statistic) often become unbounded (infinite), meaning the data is consistent with the causal effect being any value from negative infinity to positive infinity.
 
 **What this reveals about stability:**
-
-[Your answer - are the AJR findings robust or fragile?]
+These findings reveal that the AJR results are exceptionally fragile and dependent on two specific data artifacts: the 36 conjectured mortality rates and the unadjusted campaign mortality rates. Albouy shows that when both robustness checks are applied simultaneously (removing conjectured rates and controlling for campaign sources), the relationship between mortality and institutions loses statistical significance even in the simplest models, and the coefficient on mortality actually switches signs in several specifications. Furthermore, without the conjectured data points, the robust relationship is shown to be driven almost entirely by the four "Neo-Europe" countries (USA, Canada, Australia, New Zealand); excluding them leaves a sample of only 13 observations where the theory finds no empirical support. 
 
 ### Q4(d). Interpretation
 
